@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0b1020">
-    <title>Informasi Pembayaran - Charis Maulana</title>
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0d1013">
+    <title>Pembayaran · Charis Maulana</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
         tailwind.config = {
+            corePlugins: { preflight: false },
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+                        display: ['Sora', 'system-ui', 'sans-serif'],
+                        sans: ['Sora', 'system-ui', 'sans-serif'],
+                        mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace']
                     }
                 }
             }
@@ -25,257 +28,656 @@
     </script>
 
     <style>
+        /* =========================================================
+           1. DESIGN TOKENS
+           ========================================================= */
         :root {
-            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+            /* Surface: ink dengan undertone hangat */
+            --bg:            #0d1013;
+            --surface:       #151a1f;
+            --surface-2:     #1b2128;
+            --surface-3:     #232a33;
+
+            /* Garis & teks */
+            --line:          rgba(240, 235, 224, .08);
+            --line-strong:   rgba(240, 235, 224, .16);
+            --text:          #f1ede4;
+            --text-2:        #aaa59a;
+            --text-3:        #716d65;
+
+            /* Aksen utama: sand/ivory (bukan ungu-biru) */
+            --accent:        #e6d1a4;
+            --accent-hover:  #f0dfb9;
+            --accent-ink:    #15120c;
+
+            /* Aksen metode pembayaran */
+            --qris:          #e0574e;
+            --shopee:        #ee4d2d;
+            --bni:           #14a09b;
+
+            /* Radius */
+            --r-lg: 22px;
+            --r-md: 14px;
+            --r-sm: 10px;
+
+            /* Shadow */
+            --shadow-1: 0 1px 0 rgba(255,255,255,.03) inset, 0 10px 28px -20px rgba(0,0,0,.8);
+            --shadow-2: 0 24px 60px -30px rgba(0,0,0,.9);
+
+            /* Spacing */
+            --gutter: 20px;
+
+            /* Motion */
+            --ease: cubic-bezier(.2, .7, .2, 1);
+            --dur-fast: 160ms;
+            --dur: 280ms;
+            --dur-slow: 560ms;
         }
 
-        html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
         body {
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            font-family: 'Sora', system-ui, sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(860px 420px at 50% -8%, rgba(230, 209, 164, .085), transparent 62%),
+                radial-gradient(640px 460px at 105% 108%, rgba(20, 160, 155, .08), transparent 60%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ---------- Splash ---------- */
+        ::selection { background: var(--accent); color: var(--accent-ink); }
+
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        button { font: inherit; color: inherit; cursor: pointer; }
+        img { display: block; max-width: 100%; }
+
+        .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+        }
+
+        /* =========================================================
+           2. SPLASH
+           ========================================================= */
         #splash {
-            transition: opacity .45s var(--ease-out), visibility .45s;
+            position: fixed; inset: 0; z-index: 60;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--bg);
+            transition: opacity var(--dur-slow) var(--ease), visibility var(--dur-slow);
         }
         #splash.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        .splash-ring {
-            animation: ring 1.6s var(--ease-out) infinite;
+        .splash-mark {
+            width: 56px; height: 56px; border-radius: 16px;
+            display: grid; place-items: center;
+            background: var(--accent); color: var(--accent-ink);
+            font-size: 20px;
+            animation: mark-in 520ms var(--ease) both;
         }
-        @keyframes ring {
-            0%   { transform: scale(.85); opacity: .6; }
-            100% { transform: scale(1.35); opacity: 0; }
+        .splash-label {
+            margin-top: 18px; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+            color: var(--text-3);
+            animation: fade-in 520ms 120ms var(--ease) both;
+        }
+        @keyframes mark-in {
+            from { opacity: 0; transform: translateY(8px) scale(.96); }
+            to   { opacity: 1; transform: none; }
+        }
+        @keyframes fade-in {
+            from { opacity: 0; } to { opacity: 1; }
         }
 
-        /* ---------- Entrance (staggered) ---------- */
-        .reveal {
+        /* =========================================================
+           3. LAYOUT
+           ========================================================= */
+        .page {
+            width: 100%;
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: calc(env(safe-area-inset-top) + 28px) var(--gutter) calc(env(safe-area-inset-bottom) + 40px);
+        }
+
+        @media (min-width: 768px) {
+            .page { padding-top: 64px; padding-bottom: 56px; }
+        }
+
+        /* Entrance: hanya 3 kelompok, bertahap */
+        .enter {
             opacity: 0;
-            transform: translate3d(0, 14px, 0);
-            animation: rise .6s var(--ease-out) forwards;
+            transform: translate3d(0, 12px, 0);
+            animation: enter var(--dur-slow) var(--ease) forwards;
             animation-delay: var(--d, 0ms);
         }
-        @keyframes rise {
-            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        @keyframes enter { to { opacity: 1; transform: none; } }
+
+        /* =========================================================
+           4. HERO
+           ========================================================= */
+        .hero {
+            display: grid;
+            gap: 20px;
+            align-items: end;
+            margin-bottom: 36px;
+        }
+        @media (min-width: 768px) {
+            .hero { grid-template-columns: 1fr auto; gap: 40px; margin-bottom: 52px; }
         }
 
-        /* ---------- Cards ---------- */
-        .pay-card {
-            background: #111827;
-            border: 1px solid #1f2937;
-            transition: transform .25s var(--ease-out), border-color .25s, box-shadow .25s, background-color .25s;
-            will-change: transform;
+        .monogram {
+            width: 76px; height: 76px; border-radius: 22px;
+            display: grid; place-items: center;
+            background: var(--surface-2);
+            border: 1px solid var(--line-strong);
+            font-family: 'Sora', sans-serif; font-weight: 600; font-size: 24px;
+            letter-spacing: .02em;
+            color: var(--accent);
+            margin-bottom: 22px;
         }
-        .pay-card:active { transform: scale(.985); }
+        .hero-eyebrow {
+            font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-3);
+            margin: 0 0 8px;
+        }
+        .hero h1 {
+            margin: 0;
+            font-size: clamp(28px, 5vw, 40px);
+            line-height: 1.12;
+            font-weight: 600;
+            letter-spacing: -.02em;
+        }
+        .hero-lead {
+            margin: 14px 0 0;
+            max-width: 46ch;
+            color: var(--text-2);
+            font-size: 15px;
+        }
+
+        .hero-note {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 16px 18px;
+            border-radius: var(--r-md);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            max-width: 340px;
+        }
+        .hero-note i { color: var(--accent); margin-top: 3px; }
+        .hero-note p { margin: 0; font-size: 13px; color: var(--text-2); line-height: 1.55; }
+        .hero-note strong { color: var(--text); font-weight: 500; }
+
+        /* =========================================================
+           5. SECTION HEADER
+           ========================================================= */
+        .section-head {
+            display: flex; align-items: baseline; justify-content: space-between;
+            margin: 0 0 14px;
+        }
+        .section-head h2 {
+            margin: 0;
+            font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+            font-weight: 500; color: var(--text-3);
+        }
+        .section-head span { font-size: 12px; color: var(--text-3); }
+
+        /* =========================================================
+           6. PAYMENT: QRIS (featured, komposisi horizontal)
+           ========================================================= */
+        .qris {
+            display: grid;
+            gap: 24px;
+            padding: 24px;
+            border-radius: var(--r-lg);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-1);
+            margin-bottom: 28px;
+        }
+        @media (min-width: 640px) {
+            .qris { grid-template-columns: auto 1fr; align-items: center; padding: 28px; gap: 32px; }
+        }
+
+        .qris-frame {
+            position: relative;
+            justify-self: center;
+            padding: 16px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 18px 40px -26px rgba(0,0,0,.9);
+        }
+        .qris-trigger {
+            display: block; padding: 0; border: 0; background: none;
+            border-radius: 10px; cursor: zoom-in;
+        }
+        .qris-img {
+            width: 196px; height: 196px; max-width: 70vw; object-fit: contain;
+        }
+        .qris-meta { min-width: 0; }
+        .qris-meta h3 {
+            margin: 0 0 6px; font-size: 18px; font-weight: 600; letter-spacing: -.01em;
+        }
+        .qris-meta p { margin: 0 0 18px; color: var(--text-2); font-size: 14px; max-width: 42ch; }
+        .qris-tags {
+            display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 22px; padding: 0; list-style: none;
+        }
+        .qris-tags li {
+            font-size: 12px; color: var(--text-2);
+            padding: 4px 10px; border-radius: 999px;
+            border: 1px solid var(--line-strong);
+        }
+        .qris-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        /* =========================================================
+           7. BUTTONS
+           ========================================================= */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            min-height: 44px; padding: 0 18px;
+            border-radius: var(--r-sm);
+            border: 1px solid transparent;
+            font-size: 14px; font-weight: 500;
+            transition: background-color var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast) var(--ease), color var(--dur-fast);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active:not(:disabled) { transform: scale(.97); }
+        .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+        .btn-primary { background: var(--accent); color: var(--accent-ink); }
+        .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+
+        .btn-ghost {
+            background: transparent; color: var(--text);
+            border-color: var(--line-strong);
+        }
+        .btn-ghost:hover:not(:disabled) { background: var(--surface-2); border-color: rgba(240,235,224,.26); }
+
+        .btn-icon {
+            width: 44px; padding: 0; flex-shrink: 0;
+        }
+
+        /* =========================================================
+           8. PAYMENT ROWS (ShopeePay & BNI)
+           ========================================================= */
+        .rows { display: grid; gap: 12px; }
+
+        .row {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            padding: 20px 20px 20px 24px;
+            border-radius: var(--r-lg);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-1);
+            overflow: hidden;
+            transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+        }
+        .row::before {
+            content: "";
+            position: absolute; left: 0; top: 18px; bottom: 18px;
+            width: 3px; border-radius: 0 3px 3px 0;
+            background: var(--accent-color, var(--accent));
+        }
+        .row:hover { border-color: var(--line-strong); }
 
         @media (hover: hover) and (pointer: fine) {
-            .pay-card:hover {
-                transform: translateY(-3px);
-                border-color: rgba(129, 140, 248, .45);
-                box-shadow: 0 16px 40px -18px rgba(99, 102, 241, .45);
-            }
+            .row:hover { background: var(--surface-2); }
         }
 
-        .pay-card:focus-within {
-            border-color: rgba(129, 140, 248, .6);
+        @media (min-width: 640px) {
+            .row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: 28px; }
         }
 
-        /* ---------- Copy button ---------- */
+        .row-id { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .row-logo {
+            width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+            display: grid; place-items: center;
+            background: var(--surface-3);
+            color: var(--accent-color, var(--accent));
+            font-size: 18px;
+        }
+        .row-title { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+        .row-sub { margin: 2px 0 0; font-size: 13px; color: var(--text-2); }
+        .row-tag {
+            display: inline-block; margin-top: 6px;
+            font-size: 11px; letter-spacing: .04em; color: var(--text-3);
+        }
+
+        .row-number {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 8px 8px 16px;
+            border-radius: var(--r-md);
+            background: var(--bg);
+            border: 1px solid var(--line);
+            min-width: 0;
+        }
+        .row-number-value {
+            flex: 1; min-width: 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 16px; letter-spacing: .04em; color: var(--text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .row-number-label {
+            display: block; margin-bottom: 2px;
+            font-family: 'Sora', sans-serif;
+            font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3);
+        }
+
+        /* Tombol salin: state terukur, tidak ramai */
         .copy-btn {
-            transition: background-color .2s, transform .15s var(--ease-out), box-shadow .2s;
+            min-height: 40px; padding: 0 14px;
+            border-radius: 10px;
+            background: var(--surface-3); color: var(--text);
+            border: 1px solid var(--line-strong);
+            font-size: 13px; font-weight: 500;
+            display: inline-flex; align-items: center; gap: 8px;
+            flex-shrink: 0;
+            transition: background-color var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast) var(--ease);
         }
-        .copy-btn:active:not(:disabled) { transform: scale(.94); }
+        .copy-btn:hover:not(:disabled) { background: #2a323c; }
+        .copy-btn:active:not(:disabled) { transform: scale(.96); }
         .copy-btn:disabled { cursor: default; }
-        .copy-icon { display: inline-block; transition: transform .3s var(--ease-out); }
-        .copy-btn.is-done .copy-icon { animation: pop .35s var(--ease-out); }
-        @keyframes pop {
-            0%   { transform: scale(.4); }
-            70%  { transform: scale(1.15); }
-            100% { transform: scale(1); }
+        .copy-btn.is-done {
+            background: rgba(46, 160, 110, .14);
+            border-color: rgba(46, 160, 110, .45);
+            color: #8fe0b8;
+        }
+        .copy-btn.is-error {
+            background: rgba(224, 87, 78, .12);
+            border-color: rgba(224, 87, 78, .4);
+            color: #f2a09a;
+        }
+        .copy-btn .ico { display: inline-block; }
+        .copy-btn.is-done .ico { animation: tick 320ms var(--ease); }
+        @keyframes tick {
+            0% { transform: scale(.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        /* ---------- QRIS ---------- */
-        .qris-wrap {
-            transition: transform .25s var(--ease-out), box-shadow .25s;
-            cursor: zoom-in;
-        }
-        @media (hover: hover) and (pointer: fine) {
-            .qris-wrap:hover { transform: scale(1.02); box-shadow: 0 10px 30px -12px rgba(0,0,0,.6); }
+        .row-open {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 10px; padding: 0;
+            background: none; border: 0;
+            color: var(--text-2); font-size: 12px;
         }
 
-        /* ---------- Modal ---------- */
+        /* Aksen warna per metode */
+        .row--shopee { --accent-color: var(--shopee); }
+        .row--bni    { --accent-color: var(--bni); }
+        .qris-accent { --accent-color: var(--qris); }
+
+        /* =========================================================
+           9. FOOTER
+           ========================================================= */
+        .footer {
+            margin-top: 40px;
+            padding-top: 22px;
+            border-top: 1px solid var(--line);
+            display: flex; flex-direction: column; gap: 10px;
+            align-items: flex-start;
+            font-size: 12px; color: var(--text-3);
+        }
+        @media (min-width: 640px) {
+            .footer { flex-direction: row; justify-content: space-between; align-items: center; }
+        }
+        .footer p { margin: 0; }
+
+        /* =========================================================
+           10. MODAL QRIS
+           ========================================================= */
         #qris-modal {
-            transition: opacity .25s var(--ease-out), visibility .25s;
+            position: fixed; inset: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: center;
+            padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
+            background: rgba(7, 9, 11, .78);
+            opacity: 0; visibility: hidden;
+            transition: opacity var(--dur) var(--ease), visibility var(--dur);
         }
-        #qris-modal.is-closed { opacity: 0; visibility: hidden; pointer-events: none; }
-        #qris-modal .modal-panel {
-            transition: transform .3s var(--ease-out), opacity .3s;
-        }
-        #qris-modal.is-closed .modal-panel { transform: scale(.96) translateY(8px); opacity: 0; }
+        #qris-modal.is-open { opacity: 1; visibility: visible; }
 
-        /* ---------- Toast ---------- */
+        .modal-panel {
+            width: 100%; max-width: 380px;
+            max-height: calc(100dvh - 32px);
+            display: flex; flex-direction: column;
+            padding: 18px;
+            border-radius: var(--r-lg);
+            background: var(--surface);
+            border: 1px solid var(--line-strong);
+            box-shadow: var(--shadow-2);
+            transform: translateY(10px) scale(.98);
+            transition: transform var(--dur) var(--ease);
+        }
+        #qris-modal.is-open .modal-panel { transform: none; }
+
+        .modal-head {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            margin-bottom: 14px;
+        }
+        .modal-head h2 { margin: 0; font-size: 15px; font-weight: 600; }
+
+        .modal-body {
+            min-height: 0; overflow: auto;
+            display: grid; place-items: center;
+            padding: 14px;
+            background: #fff; border-radius: var(--r-md);
+        }
+        .modal-body img {
+            width: 100%; height: auto; max-height: calc(100dvh - 210px);
+            object-fit: contain;
+        }
+
+        .modal-foot {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin-top: 14px;
+        }
+        .modal-foot .btn { width: 100%; }
+
+        .modal-hint { margin: 12px 0 0; text-align: center; font-size: 12px; color: var(--text-3); }
+
+        /* =========================================================
+           11. TOAST
+           ========================================================= */
         #toast {
-            transition: transform .35s var(--ease-out), opacity .35s var(--ease-out);
+            position: fixed;
+            left: 50%;
+            bottom: calc(env(safe-area-inset-bottom) + 20px);
+            z-index: 70;
+            display: flex; align-items: center; gap: 10px;
+            max-width: min(92vw, 380px);
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: var(--surface-3);
+            border: 1px solid var(--line-strong);
+            box-shadow: var(--shadow-2);
+            font-size: 13px; color: var(--text);
+            opacity: 0;
+            transform: translate(-50%, 10px);
+            pointer-events: none;
+            transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
         }
-        #toast.is-hidden { opacity: 0; transform: translate(-50%, 12px); pointer-events: none; }
+        #toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+        #toast i { flex-shrink: 0; }
 
-        /* ---------- Focus ---------- */
-        :focus-visible {
-            outline: 2px solid #818cf8;
-            outline-offset: 3px;
-            border-radius: 12px;
+        /* =========================================================
+           12. RESPONSIVE KECIL
+           ========================================================= */
+        @media (max-width: 380px) {
+            .row-number-value { font-size: 14px; letter-spacing: .02em; }
         }
 
-        /* ---------- Reduced motion ---------- */
+        /* =========================================================
+           13. REDUCED MOTION
+           ========================================================= */
         @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
             *, *::before, *::after {
-                animation-duration: .01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: .01ms !important;
-                scroll-behavior: auto !important;
+                animation-duration: 1ms !important;
+                animation-delay: 0ms !important;
+                transition-duration: 1ms !important;
             }
-            .reveal { opacity: 1; transform: none; }
-            .splash-ring { display: none; }
+            .enter { opacity: 1; transform: none; }
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen antialiased overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+<body>
 
     <!-- SPLASH -->
-    <div id="splash" role="status" aria-live="polite" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950">
-        <div class="relative flex items-center justify-center mb-6" aria-hidden="true">
-            <div class="splash-ring absolute w-20 h-20 rounded-full bg-indigo-500/25"></div>
-            <div class="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-xl shadow-indigo-600/30">
-                <i class="fa-solid fa-wallet text-2xl text-white"></i>
-            </div>
-        </div>
-        <h1 class="text-lg font-bold tracking-wide text-white mb-1">Secure Payment Portal</h1>
-        <p class="text-[11px] text-slate-400 tracking-[0.2em] uppercase">Mempersiapkan Halaman...</p>
+    <div id="splash" aria-hidden="true">
+        <div class="splash-mark"><i class="fa-solid fa-wallet" aria-hidden="true"></i></div>
+        <p class="splash-label">Memuat pembayaran</p>
     </div>
 
-    <!-- MAIN -->
-    <main class="w-full max-w-md mx-auto px-5 pt-[max(3rem,env(safe-area-inset-top))] pb-10 min-h-screen flex flex-col justify-center">
+    <main class="page">
 
-        <!-- Profile -->
-        <header class="text-center mb-8">
-            <div class="reveal inline-block p-[3px] rounded-full bg-gradient-to-tr from-indigo-500 to-violet-500 mb-4" style="--d: 0ms">
-                <div class="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center">
-                    <span class="text-2xl font-bold text-indigo-300" aria-hidden="true">CM</span>
-                </div>
+        <!-- HERO -->
+        <header class="hero">
+            <div class="enter" style="--d: 0ms">
+                <div class="monogram" aria-hidden="true">CM</div>
+                <p class="hero-eyebrow">Pembayaran pribadi</p>
+                <h1>Charis Maulana</h1>
+                <p class="hero-lead">Pilih salah satu metode di bawah. Nomor tujuan dapat disalin dengan satu ketukan.</p>
             </div>
-            <h2 class="reveal text-xl font-bold text-white" style="--d: 80ms">Charis Maulana</h2>
-            <p class="reveal text-sm text-slate-400 mt-1" style="--d: 140ms">Silakan pilih metode pembayaran di bawah ini</p>
+
+            <aside class="hero-note enter" style="--d: 120ms" aria-label="Catatan konfirmasi">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <p><strong>Setelah transfer</strong>, mohon konfirmasi kepada penerima agar pembayaran dapat dicatat.</p>
+            </aside>
         </header>
 
-        <section aria-label="Metode pembayaran" class="space-y-4">
+        <!-- QRIS -->
+        <section aria-labelledby="h-payments">
+            <div class="section-head enter" style="--d: 180ms">
+                <h2 id="h-payments">Metode pembayaran</h2>
+                <span>3 pilihan</span>
+            </div>
 
-            <!-- QRIS -->
-            <article class="reveal pay-card rounded-2xl p-5" style="--d: 200ms">
-                <div class="flex items-center justify-between gap-3 mb-4">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-10 h-10 shrink-0 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400">
-                            <i class="fa-solid fa-qrcode text-lg" aria-hidden="true"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <h3 class="font-semibold text-white text-sm">QRIS All Payment</h3>
-                            <p class="text-xs text-slate-400">Scan via m-Banking / E-Wallet</p>
-                        </div>
-                    </div>
-                    <span class="shrink-0 text-[10px] font-medium px-2.5 py-1 rounded-full bg-red-500/15 text-red-300 border border-red-500/25">Universal</span>
-                </div>
-
-                <div class="bg-white p-3 rounded-xl flex flex-col items-center">
-                    <button type="button" id="qris-trigger" class="qris-wrap rounded-lg p-0 bg-transparent" aria-haspopup="dialog" aria-label="Perbesar kode QRIS">
+            <article class="qris qris-accent enter" style="--d: 220ms" aria-labelledby="h-qris">
+                <div class="qris-frame">
+                    <button type="button" class="qris-trigger" id="qris-trigger" aria-haspopup="dialog" aria-controls="qris-modal">
                         <img id="qris-img"
-                             src="https://via.placeholder.com/300x300.png?text=QRIS+ANDA+DISINI"
-                             alt="Kode QRIS Charis Maulana"
-                             width="192" height="192"
-                             class="w-48 h-48 max-w-full object-contain rounded-lg">
+                             class="qris-img"
+                             src="https://via.placeholder.com/392x392.png?text=QRIS+ANDA+DISINI"
+                             alt="Kode QRIS atas nama Charis Maulana"
+                             width="196" height="196">
                     </button>
-                    <p class="text-[11px] text-slate-500 mt-2 text-center">Kompatibel dengan GoPay, OVO, Dana, ShopeePay, BCA, Mandiri, dll.</p>
+                </div>
+
+                <div class="qris-meta">
+                    <h3 id="h-qris">QRIS</h3>
+                    <p>Pindai dengan aplikasi m-Banking atau dompet digital apa pun.</p>
+                    <ul class="qris-tags" aria-label="Aplikasi yang didukung">
+                        <li>GoPay</li><li>OVO</li><li>DANA</li><li>ShopeePay</li><li>BCA</li><li>Mandiri</li><li>dan lainnya</li>
+                    </ul>
+                    <div class="qris-actions">
+                        <button type="button" class="btn btn-primary" id="qris-zoom-btn" aria-haspopup="dialog" aria-controls="qris-modal">
+                            <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                            Perbesar
+                        </button>
+                        <button type="button" class="btn btn-ghost" id="qris-download-btn">
+                            <i class="fa-solid fa-arrow-down-to-line" aria-hidden="true"></i>
+                            Unduh
+                        </button>
+                    </div>
                 </div>
             </article>
 
-            <!-- ShopeePay -->
-            <article class="reveal pay-card rounded-2xl p-5" style="--d: 280ms">
-                <div class="flex items-center justify-between gap-3 mb-4">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-10 h-10 shrink-0 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-400">
-                            <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <h3 class="font-semibold text-white text-sm">ShopeePay</h3>
-                            <p class="text-xs text-slate-400">A/N Charis Maulana</p>
+            <!-- ROWS -->
+            <div class="rows">
+                <!-- ShopeePay -->
+                <article class="row row--shopee enter" style="--d: 300ms" aria-labelledby="h-shopee">
+                    <div class="row-id">
+                        <div class="row-logo" aria-hidden="true"><i class="fa-solid fa-bag-shopping"></i></div>
+                        <div>
+                            <h3 class="row-title" id="h-shopee">ShopeePay</h3>
+                            <p class="row-sub">a.n. Charis Maulana</p>
                         </div>
                     </div>
-                    <span class="shrink-0 text-[10px] font-medium px-2.5 py-1 rounded-full bg-orange-500/15 text-orange-300 border border-orange-500/25">E-Wallet</span>
-                </div>
-                <div class="flex items-center justify-between gap-2 bg-slate-950/70 rounded-xl pl-4 pr-2 py-2 border border-slate-800">
-                    <span id="shopeepay-num" class="font-mono text-sm tracking-wider text-slate-200 truncate">+62 813-3666-3071</span>
-                    <button type="button" class="copy-btn shrink-0 min-h-[40px] px-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-indigo-600/20"
-                            data-copy="+6281336663071" data-label="ShopeePay">
-                        <i class="fa-regular fa-copy copy-icon" aria-hidden="true"></i>
-                        <span class="btn-label">Salin</span>
-                    </button>
-                </div>
-            </article>
 
-            <!-- BNI -->
-            <article class="reveal pay-card rounded-2xl p-5" style="--d: 360ms">
-                <div class="flex items-center justify-between gap-3 mb-4">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-10 h-10 shrink-0 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400">
-                            <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
+                    <div class="row-number">
+                        <div style="min-width:0; flex:1">
+                            <span class="row-number-label">Nomor tujuan</span>
+                            <span class="row-number-value mono" id="shopeepay-num">+62 813-3666-3071</span>
                         </div>
-                        <div class="min-w-0">
-                            <h3 class="font-semibold text-white text-sm">Bank Negara Indonesia (BNI)</h3>
-                            <p class="text-xs text-slate-400">A/N Charis Maulana</p>
+                        <button type="button" class="copy-btn" data-copy="+6281336663071" data-label="ShopeePay">
+                            <i class="fa-regular fa-copy ico" aria-hidden="true"></i>
+                            <span class="btn-text">Salin</span>
+                        </button>
+                    </div>
+                </article>
+
+                <!-- BNI -->
+                <article class="row row--bni enter" style="--d: 360ms" aria-labelledby="h-bni">
+                    <div class="row-id">
+                        <div class="row-logo" aria-hidden="true"><i class="fa-solid fa-building-columns"></i></div>
+                        <div>
+                            <h3 class="row-title" id="h-bni">BNI</h3>
+                            <p class="row-sub">Bank Negara Indonesia · a.n. Charis Maulana</p>
                         </div>
                     </div>
-                    <span class="shrink-0 text-[10px] font-medium px-2.5 py-1 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/25">Bank Transfer</span>
-                </div>
-                <div class="flex items-center justify-between gap-2 bg-slate-950/70 rounded-xl pl-4 pr-2 py-2 border border-slate-800">
-                    <span id="bni-num" class="font-mono text-sm tracking-wider text-slate-200 truncate">0697962588</span>
-                    <button type="button" class="copy-btn shrink-0 min-h-[40px] px-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-indigo-600/20"
-                            data-copy="0697962588" data-label="BNI">
-                        <i class="fa-regular fa-copy copy-icon" aria-hidden="true"></i>
-                        <span class="btn-label">Salin</span>
-                    </button>
-                </div>
-            </article>
+
+                    <div class="row-number">
+                        <div style="min-width:0; flex:1">
+                            <span class="row-number-label">Nomor rekening</span>
+                            <span class="row-number-value mono" id="bni-num">0697962588</span>
+                        </div>
+                        <button type="button" class="copy-btn" data-copy="0697962588" data-label="rekening BNI">
+                            <i class="fa-regular fa-copy ico" aria-hidden="true"></i>
+                            <span class="btn-text">Salin</span>
+                        </button>
+                    </div>
+                </article>
+            </div>
         </section>
 
-        <p class="reveal mt-7 text-center text-xs text-slate-500 flex items-center justify-center gap-1.5" style="--d: 440ms">
-            <i class="fa-solid fa-shield-halved text-indigo-400" aria-hidden="true"></i>
-            <span>Harap konfirmasi setelah melakukan pengiriman.</span>
-        </p>
+        <footer class="footer enter" style="--d: 440ms">
+            <p>&copy; 2026 Charis Maulana</p>
+            <p>Pastikan nama penerima sesuai sebelum mengirim.</p>
+        </footer>
     </main>
 
-    <footer class="reveal pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 text-center text-xs text-slate-600" style="--d: 500ms">
-        &copy; 2026 Charis Maulana. Secure &amp; Verified.
-    </footer>
-
     <!-- QRIS MODAL -->
-    <div id="qris-modal" class="is-closed fixed inset-0 z-40 flex items-center justify-center p-5 bg-slate-950/85"
-         aria-hidden="true">
-        <div id="qris-dialog" role="dialog" aria-modal="true" aria-labelledby="qris-title"
-             class="modal-panel relative max-w-sm w-full rounded-2xl bg-white p-4 shadow-2xl">
-            <div class="flex items-center justify-between mb-3">
-                <h2 id="qris-title" class="text-sm font-semibold text-slate-800">QRIS All Payment</h2>
-                <button type="button" id="qris-close" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center"
-                        aria-label="Tutup">
+    <div id="qris-modal" aria-hidden="true">
+        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+            <div class="modal-head">
+                <h2 id="modal-title">QRIS · Charis Maulana</h2>
+                <button type="button" class="btn btn-ghost btn-icon" id="modal-close" aria-label="Tutup">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
             </div>
-            <img id="qris-zoom" src="" alt="Kode QRIS Charis Maulana, versi diperbesar"
-                 class="block w-full h-auto max-h-[70vh] object-contain rounded-lg">
+            <div class="modal-body">
+                <img id="modal-img" src="" alt="Kode QRIS atas nama Charis Maulana, versi diperbesar">
+            </div>
+            <div class="modal-foot">
+                <button type="button" class="btn btn-ghost" id="modal-download">
+                    <i class="fa-solid fa-arrow-down-to-line" aria-hidden="true"></i>
+                    Unduh
+                </button>
+                <button type="button" class="btn btn-primary" id="modal-done">Selesai</button>
+            </div>
+            <p class="modal-hint">Tekan Esc atau ketuk di luar untuk menutup.</p>
         </div>
     </div>
 
     <!-- TOAST -->
-    <div id="toast" role="status" aria-live="polite"
-         class="is-hidden fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-slate-800 text-white px-4 py-2.5 rounded-xl shadow-2xl border border-slate-700 text-xs font-medium max-w-[90vw]">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400" aria-hidden="true"></i>
+    <div id="toast" role="status" aria-live="polite">
+        <i id="toast-icon" class="fa-solid fa-circle-check" style="color:#8fe0b8" aria-hidden="true"></i>
         <span id="toast-msg"></span>
     </div>
 
@@ -283,48 +685,52 @@
         (function () {
             'use strict';
 
-            /* ---------- Splash ---------- */
-            const splash = document.getElementById('splash');
+            const $ = (sel, root = document) => root.querySelector(sel);
+            const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+            /* ---------- Splash: singkat, tidak pernah menggantung ---------- */
+            const splash = $('#splash');
             const hideSplash = () => {
                 if (!splash || splash.classList.contains('is-hidden')) return;
                 splash.classList.add('is-hidden');
-                splash.setAttribute('aria-hidden', 'true');
                 setTimeout(() => splash.remove(), 600);
             };
-            // Durasi singkat; failsafe agar tidak pernah menggantung
-            const minShow = setTimeout(hideSplash, 700);
-            const failsafe = setTimeout(hideSplash, 2500);
-            const onReady = () => { clearTimeout(minShow); clearTimeout(failsafe); setTimeout(hideSplash, 350); };
-            if (document.readyState === 'complete') onReady();
-            else window.addEventListener('load', onReady, { once: true });
+            const splashTimer = setTimeout(hideSplash, 1100);
+            window.addEventListener('load', () => {
+                clearTimeout(splashTimer);
+                setTimeout(hideSplash, 350);
+            }, { once: true });
+            // Failsafe jika event load tidak pernah datang
+            setTimeout(hideSplash, 2200);
 
             /* ---------- Toast ---------- */
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-msg');
-            const toastIcon = document.getElementById('toast-icon');
+            const toast = $('#toast');
+            const toastMsg = $('#toast-msg');
+            const toastIcon = $('#toast-icon');
             let toastTimer = null;
 
             function showToast(message, type = 'success') {
                 toastMsg.textContent = message;
                 toastIcon.className = type === 'success'
-                    ? 'fa-solid fa-circle-check text-emerald-400'
-                    : 'fa-solid fa-circle-exclamation text-amber-400';
-                toast.classList.remove('is-hidden');
+                    ? 'fa-solid fa-circle-check'
+                    : 'fa-solid fa-circle-exclamation';
+                toastIcon.style.color = type === 'success' ? '#8fe0b8' : '#f2a09a';
+                toast.classList.add('is-visible');
                 clearTimeout(toastTimer);
-                toastTimer = setTimeout(() => toast.classList.add('is-hidden'), 2500);
+                toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2400);
             }
 
-            /* ---------- Copy ---------- */
-            function fallbackCopy(text) {
+            /* ---------- Clipboard dengan fallback ---------- */
+            function legacyCopy(text) {
                 const ta = document.createElement('textarea');
                 ta.value = text;
                 ta.setAttribute('readonly', '');
-                ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+                ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
                 document.body.appendChild(ta);
                 ta.select();
                 ta.setSelectionRange(0, text.length);
                 let ok = false;
-                try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+                try { ok = document.execCommand('copy'); } catch (_) { ok = false; }
                 ta.remove();
                 return ok;
             }
@@ -334,96 +740,141 @@
                     try {
                         await navigator.clipboard.writeText(text);
                         return true;
-                    } catch (e) { /* lanjut ke fallback */ }
+                    } catch (_) { /* izin ditolak: lanjut ke fallback */ }
                 }
-                return fallbackCopy(text);
+                return legacyCopy(text);
             }
 
-            function setButtonState(btn, state) {
-                const icon = btn.querySelector('.copy-icon');
-                const label = btn.querySelector('.btn-label');
-                btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500', 'bg-emerald-600', 'bg-rose-600');
-                if (state === 'done') {
-                    btn.classList.add('bg-emerald-600');
-                    icon.className = 'fa-solid fa-check copy-icon';
-                    label.textContent = 'Tersalin';
-                    btn.classList.add('is-done');
-                } else if (state === 'error') {
-                    btn.classList.add('bg-rose-600');
-                    icon.className = 'fa-solid fa-triangle-exclamation copy-icon';
-                    label.textContent = 'Gagal';
-                } else {
-                    btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
-                    icon.className = 'fa-regular fa-copy copy-icon';
-                    label.textContent = 'Salin';
-                    btn.classList.remove('is-done');
-                }
-            }
+            /* ---------- Tombol salin ---------- */
+            const defaultCopyHTML = { };
 
-            document.querySelectorAll('.copy-btn').forEach((btn) => {
+            $$('.copy-btn').forEach((btn) => {
+                btn.dataset.idle = btn.innerHTML;
                 btn.addEventListener('click', async () => {
                     if (btn.disabled) return;
                     btn.disabled = true;
                     const ok = await copyText(btn.dataset.copy);
+                    const label = btn.querySelector('.btn-text');
+                    const icon = btn.querySelector('.ico');
+
                     if (ok) {
-                        setButtonState(btn, 'done');
+                        btn.classList.add('is-done');
+                        icon.className = 'fa-solid fa-check ico';
+                        label.textContent = 'Tersalin';
                         showToast(`Nomor ${btn.dataset.label} berhasil disalin`);
                     } else {
-                        setButtonState(btn, 'error');
-                        showToast('Gagal menyalin. Silakan salin nomor secara manual.', 'error');
+                        btn.classList.add('is-error');
+                        icon.className = 'fa-solid fa-triangle-exclamation ico';
+                        label.textContent = 'Gagal';
+                        showToast('Tidak dapat menyalin otomatis. Salin nomor secara manual.', 'error');
                     }
+
                     setTimeout(() => {
-                        setButtonState(btn, 'idle');
+                        btn.classList.remove('is-done', 'is-error');
+                        icon.className = 'fa-regular fa-copy ico';
+                        label.textContent = 'Salin';
                         btn.disabled = false;
                     }, 2000);
                 });
             });
 
-            /* ---------- QRIS Modal ---------- */
-            const modal = document.getElementById('qris-modal');
-            const dialog = document.getElementById('qris-dialog');
-            const trigger = document.getElementById('qris-trigger');
-            const closeBtn = document.getElementById('qris-close');
-            const srcImg = document.getElementById('qris-img');
-            const zoomImg = document.getElementById('qris-zoom');
+            /* ---------- Modal QRIS ---------- */
+            const modal = $('#qris-modal');
+            const panel = $('.modal-panel', modal);
+            const srcImg = $('#qris-img');
+            const modalImg = $('#modal-img');
+            const closeBtn = $('#modal-close');
+            const doneBtn = $('#modal-done');
+            const modalDownload = $('#modal-download');
+            const qrisDownload = $('#qris-download-btn');
             let lastFocus = null;
+            let qrisAvailable = true;
 
             function openModal() {
+                if (!qrisAvailable) {
+                    showToast('Kode QRIS belum tersedia.', 'error');
+                    return;
+                }
                 lastFocus = document.activeElement;
-                zoomImg.src = srcImg.src;
-                modal.classList.remove('is-closed');
+                modalImg.src = srcImg.src;
+                modal.classList.add('is-open');
                 modal.setAttribute('aria-hidden', 'false');
                 document.body.style.overflow = 'hidden';
-                requestAnimationFrame(() => closeBtn.focus());
+                requestAnimationFrame(() => doneBtn.focus());
             }
 
             function closeModal() {
-                if (modal.classList.contains('is-closed')) return;
-                modal.classList.add('is-closed');
+                if (!modal.classList.contains('is-open')) return;
+                modal.classList.remove('is-open');
                 modal.setAttribute('aria-hidden', 'true');
                 document.body.style.overflow = '';
-                if (lastFocus && lastFocus.focus) lastFocus.focus();
+                if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
             }
 
-            trigger.addEventListener('click', openModal);
+            $('#qris-trigger').addEventListener('click', openModal);
+            $('#qris-zoom-btn').addEventListener('click', openModal);
             closeBtn.addEventListener('click', closeModal);
+            doneBtn.addEventListener('click', closeModal);
+
             modal.addEventListener('click', (e) => {
-                if (!dialog.contains(e.target)) closeModal();
+                if (!panel.contains(e.target)) closeModal();
             });
+
             document.addEventListener('keydown', (e) => {
-                if (modal.classList.contains('is-closed')) return;
-                if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
-                if (e.key === 'Tab') {
-                    // Jebakan fokus sederhana: hanya tombol tutup yang bisa difokus
+                if (!modal.classList.contains('is-open')) return;
+                if (e.key === 'Escape') {
                     e.preventDefault();
-                    closeBtn.focus();
+                    closeModal();
+                    return;
+                }
+                if (e.key === 'Tab') {
+                    // Fokus terkurung di dalam dialog
+                    const focusables = [closeBtn, modalDownload, doneBtn];
+                    const i = focusables.indexOf(document.activeElement);
+                    e.preventDefault();
+                    const next = e.shiftKey
+                        ? focusables[(i - 1 + focusables.length) % focusables.length]
+                        : focusables[(i + 1) % focusables.length];
+                    next.focus();
                 }
             });
 
-            /* Gambar QRIS tetap proporsional jika gagal dimuat */
-            srcImg.addEventListener('error', () => {
-                srcImg.alt = 'QRIS belum tersedia';
-            });
+            /* ---------- Unduh QRIS ---------- */
+            async function downloadQris() {
+                const url = srcImg.src;
+                try {
+                    const res = await fetch(url, { mode: 'cors' });
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const blob = await res.blob();
+                    const objectUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = objectUrl;
+                    a.download = 'qris-charis-maulana.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    setTimeout(() => URL.revokeObjectURL(objectUrl), 4000);
+                    showToast('Gambar QRIS sedang diunduh');
+                } catch (_) {
+                    // Sumber lintas-domain tanpa CORS: buka di tab baru sebagai cadangan
+                    const w = window.open(url, '_blank', 'noopener');
+                    if (w) showToast('Gambar dibuka di tab baru. Simpan dari sana.');
+                    else showToast('Tidak dapat mengunduh gambar.', 'error');
+                }
+            }
+
+            qrisDownload.addEventListener('click', downloadQris);
+            modalDownload.addEventListener('click', downloadQris);
+
+            /* ---------- Gambar QRIS: fallback jika gagal dimuat ---------- */
+            function markQrisUnavailable() {
+                qrisAvailable = false;
+                srcImg.alt = 'Kode QRIS belum tersedia';
+                qrisDownload.disabled = true;
+                $('#qris-zoom-btn').disabled = true;
+            }
+            srcImg.addEventListener('error', markQrisUnavailable);
+            if (srcImg.complete && srcImg.naturalWidth === 0) markQrisUnavailable();
         })();
     </script>
 </body>
