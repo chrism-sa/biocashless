@@ -3,29 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#030712">
-    <title>Informasi Pembayaran - Charis Maulana</title>
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0d1013">
+    <title>Pembayaran · Charis Maulana</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
         tailwind.config = {
+            corePlugins: { preflight: false },
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
-                    },
-                    colors: {
-                        fintech: {
-                            bg: '#030712',
-                            surface: '#0d1322',
-                            border: '#1e293b',
-                            muted: '#94a3b8'
-                        }
+                        display: ['Sora', 'system-ui', 'sans-serif'],
+                        sans: ['Sora', 'system-ui', 'sans-serif'],
+                        mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace']
                     }
                 }
             }
@@ -33,344 +28,711 @@
     </script>
 
     <style>
+        /* =========================================================
+           1. DESIGN TOKENS
+           ========================================================= */
         :root {
-            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            /* Surface: ink dengan undertone hangat */
+            --bg:            #0d1013;
+            --surface:       #151a1f;
+            --surface-2:     #1b2128;
+            --surface-3:     #232a33;
+
+            /* Garis & teks */
+            --line:          rgba(240, 235, 224, .08);
+            --line-strong:   rgba(240, 235, 224, .16);
+            --text:          #f1ede4;
+            --text-2:        #aaa59a;
+            --text-3:        #716d65;
+
+            /* Aksen utama: sand/ivory (bukan ungu-biru) */
+            --accent:        #e6d1a4;
+            --accent-hover:  #f0dfb9;
+            --accent-ink:    #15120c;
+
+            /* Aksen metode pembayaran */
+            --qris:          #e0574e;
+            --shopee:        #ee4d2d;
+            --bni:           #14a09b;
+
+            /* Radius */
+            --r-lg: 22px;
+            --r-md: 14px;
+            --r-sm: 10px;
+
+            /* Shadow */
+            --shadow-1: 0 1px 0 rgba(255,255,255,.03) inset, 0 10px 28px -20px rgba(0,0,0,.8);
+            --shadow-2: 0 24px 60px -30px rgba(0,0,0,.9);
+
+            /* Spacing */
+            --gutter: 20px;
+
+            /* Motion */
+            --ease: cubic-bezier(.2, .7, .2, 1);
+            --dur-fast: 160ms;
+            --dur: 280ms;
+            --dur-slow: 560ms;
         }
 
-        html { 
-            scroll-behavior: smooth; 
-            -webkit-text-size-adjust: 100%; 
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
         }
-        
+
         body {
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-            background-color: #030712;
-            color: #f8fafc;
-            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            font-family: 'Sora', system-ui, sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(860px 420px at 50% -8%, rgba(230, 209, 164, .085), transparent 62%),
+                radial-gradient(640px 460px at 105% 108%, rgba(20, 160, 155, .08), transparent 60%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ---------- Splash Screen ---------- */
+        ::selection { background: var(--accent); color: var(--accent-ink); }
+
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        button { font: inherit; color: inherit; cursor: pointer; }
+        img { display: block; max-width: 100%; }
+
+        .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+        }
+
+        /* =========================================================
+           2. SPLASH
+           ========================================================= */
         #splash {
-            transition: opacity 0.4s var(--ease-out), visibility 0.4s;
+            position: fixed; inset: 0; z-index: 60;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--bg);
+            transition: opacity var(--dur-slow) var(--ease), visibility var(--dur-slow);
         }
-        #splash.is-hidden { 
-            opacity: 0; 
-            visibility: hidden; 
-            pointer-events: none; 
+        #splash.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .splash-mark {
+            width: 56px; height: 56px; border-radius: 16px;
+            display: grid; place-items: center;
+            background: var(--accent); color: var(--accent-ink);
+            font-size: 20px;
+            animation: mark-in 520ms var(--ease) both;
         }
-        .splash-pulse {
-            animation: pulse-ring 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        .splash-label {
+            margin-top: 18px; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+            color: var(--text-3);
+            animation: fade-in 520ms 120ms var(--ease) both;
         }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.15); opacity: 0.2; }
-            100% { transform: scale(0.95); opacity: 0.8; }
+        @keyframes mark-in {
+            from { opacity: 0; transform: translateY(8px) scale(.96); }
+            to   { opacity: 1; transform: none; }
+        }
+        @keyframes fade-in {
+            from { opacity: 0; } to { opacity: 1; }
         }
 
-        /* ---------- Staggered Entrance ---------- */
-        .reveal {
+        /* =========================================================
+           3. LAYOUT
+           ========================================================= */
+        .page {
+            width: 100%;
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: calc(env(safe-area-inset-top) + 28px) var(--gutter) calc(env(safe-area-inset-bottom) + 40px);
+        }
+
+        @media (min-width: 768px) {
+            .page { padding-top: 64px; padding-bottom: 56px; }
+        }
+
+        /* Entrance: hanya 3 kelompok, bertahap */
+        .enter {
             opacity: 0;
-            transform: translateY(12px);
-            animation: entrance 0.6s var(--ease-out) forwards;
+            transform: translate3d(0, 12px, 0);
+            animation: enter var(--dur-slow) var(--ease) forwards;
             animation-delay: var(--d, 0ms);
         }
-        @keyframes entrance {
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes enter { to { opacity: 1; transform: none; } }
+
+        /* =========================================================
+           4. HERO
+           ========================================================= */
+        .hero {
+            display: grid;
+            gap: 20px;
+            align-items: end;
+            margin-bottom: 36px;
+        }
+        @media (min-width: 768px) {
+            .hero { grid-template-columns: 1fr auto; gap: 40px; margin-bottom: 52px; }
         }
 
-        /* ---------- Fintech Structured Panels ---------- */
-        .panel-fintech {
-            background-color: #0d1322;
-            border: 1px solid #1e293b;
-            transition: border-color 0.2s ease, transform 0.2s var(--ease-out), box-shadow 0.2s ease;
+        .monogram {
+            width: 76px; height: 76px; border-radius: 22px;
+            display: grid; place-items: center;
+            background: var(--surface-2);
+            border: 1px solid var(--line-strong);
+            font-family: 'Sora', sans-serif; font-weight: 600; font-size: 24px;
+            letter-spacing: .02em;
+            color: var(--accent);
+            margin-bottom: 22px;
         }
-        
+        .hero-eyebrow {
+            font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-3);
+            margin: 0 0 8px;
+        }
+        .hero h1 {
+            margin: 0;
+            font-size: clamp(28px, 5vw, 40px);
+            line-height: 1.12;
+            font-weight: 600;
+            letter-spacing: -.02em;
+        }
+        .hero-lead {
+            margin: 14px 0 0;
+            max-width: 46ch;
+            color: var(--text-2);
+            font-size: 15px;
+        }
+
+        .hero-note {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 16px 18px;
+            border-radius: var(--r-md);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            max-width: 340px;
+        }
+        .hero-note i { color: var(--accent); margin-top: 3px; }
+        .hero-note p { margin: 0; font-size: 13px; color: var(--text-2); line-height: 1.55; }
+        .hero-note strong { color: var(--text); font-weight: 500; }
+
+        /* =========================================================
+           5. SECTION HEADER
+           ========================================================= */
+        .section-head {
+            display: flex; align-items: baseline; justify-content: space-between;
+            margin: 0 0 14px;
+        }
+        .section-head h2 {
+            margin: 0;
+            font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+            font-weight: 500; color: var(--text-3);
+        }
+        .section-head span { font-size: 12px; color: var(--text-3); }
+
+        /* =========================================================
+           6. PAYMENT: QRIS (featured, komposisi horizontal)
+           ========================================================= */
+        .qris {
+            display: grid;
+            gap: 24px;
+            padding: 24px;
+            border-radius: var(--r-lg);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-1);
+            margin-bottom: 28px;
+        }
+        @media (min-width: 640px) {
+            .qris { grid-template-columns: auto 1fr; align-items: center; padding: 28px; gap: 32px; }
+        }
+
+        .qris-frame {
+            position: relative;
+            justify-self: center;
+            padding: 16px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 18px 40px -26px rgba(0,0,0,.9);
+        }
+        .qris-trigger {
+            display: block; padding: 0; border: 0; background: none;
+            border-radius: 10px; cursor: zoom-in;
+        }
+        .qris-img {
+            width: 196px; height: 196px; max-width: 70vw; object-fit: contain;
+        }
+        .qris-meta { min-width: 0; }
+        .qris-meta h3 {
+            margin: 0 0 6px; font-size: 18px; font-weight: 600; letter-spacing: -.01em;
+        }
+        .qris-meta p { margin: 0 0 18px; color: var(--text-2); font-size: 14px; max-width: 42ch; }
+        .qris-tags {
+            display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 22px; padding: 0; list-style: none;
+        }
+        .qris-tags li {
+            font-size: 12px; color: var(--text-2);
+            padding: 4px 10px; border-radius: 999px;
+            border: 1px solid var(--line-strong);
+        }
+        .qris-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        /* =========================================================
+           7. BUTTONS
+           ========================================================= */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            min-height: 44px; padding: 0 18px;
+            border-radius: var(--r-sm);
+            border: 1px solid transparent;
+            font-size: 14px; font-weight: 500;
+            transition: background-color var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast) var(--ease), color var(--dur-fast);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active:not(:disabled) { transform: scale(.97); }
+        .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+        .btn-primary { background: var(--accent); color: var(--accent-ink); }
+        .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+
+        .btn-ghost {
+            background: transparent; color: var(--text);
+            border-color: var(--line-strong);
+        }
+        .btn-ghost:hover:not(:disabled) { background: var(--surface-2); border-color: rgba(240,235,224,.26); }
+
+        .btn-icon {
+            width: 44px; padding: 0; flex-shrink: 0;
+        }
+
+        /* =========================================================
+           8. PAYMENT ROWS (ShopeePay & BNI)
+           ========================================================= */
+        .rows { display: grid; gap: 12px; }
+
+        .row {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            padding: 20px 20px 20px 24px;
+            border-radius: var(--r-lg);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-1);
+            overflow: hidden;
+            transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+        }
+        .row::before {
+            content: "";
+            position: absolute; left: 0; top: 18px; bottom: 18px;
+            width: 3px; border-radius: 0 3px 3px 0;
+            background: var(--accent-color, var(--accent));
+        }
+        .row:hover { border-color: var(--line-strong); }
+
         @media (hover: hover) and (pointer: fine) {
-            .panel-fintech:hover {
-                border-color: #334155;
-                box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.5);
-            }
+            .row:hover { background: var(--surface-2); }
         }
 
-        /* ---------- Copy Feedback ---------- */
+        @media (min-width: 640px) {
+            .row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: 28px; }
+        }
+
+        .row-id { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .row-logo {
+            width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+            display: grid; place-items: center;
+            background: var(--surface-3);
+            color: var(--accent-color, var(--accent));
+            font-size: 18px;
+        }
+        .row-title { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+        .row-sub { margin: 2px 0 0; font-size: 13px; color: var(--text-2); }
+        .row-tag {
+            display: inline-block; margin-top: 6px;
+            font-size: 11px; letter-spacing: .04em; color: var(--text-3);
+        }
+
+        .row-number {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 8px 8px 16px;
+            border-radius: var(--r-md);
+            background: var(--bg);
+            border: 1px solid var(--line);
+            min-width: 0;
+        }
+        .row-number-value {
+            flex: 1; min-width: 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 16px; letter-spacing: .04em; color: var(--text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .row-number-label {
+            display: block; margin-bottom: 2px;
+            font-family: 'Sora', sans-serif;
+            font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3);
+        }
+
+        /* Tombol salin: state terukur, tidak ramai */
         .copy-btn {
-            transition: background-color 0.15s ease, transform 0.1s ease;
+            min-height: 40px; padding: 0 14px;
+            border-radius: 10px;
+            background: var(--surface-3); color: var(--text);
+            border: 1px solid var(--line-strong);
+            font-size: 13px; font-weight: 500;
+            display: inline-flex; align-items: center; gap: 8px;
+            flex-shrink: 0;
+            transition: background-color var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast) var(--ease);
         }
-        .copy-btn:active:not(:disabled) { 
-            transform: scale(0.96); 
+        .copy-btn:hover:not(:disabled) { background: #2a323c; }
+        .copy-btn:active:not(:disabled) { transform: scale(.96); }
+        .copy-btn:disabled { cursor: default; }
+        .copy-btn.is-done {
+            background: rgba(46, 160, 110, .14);
+            border-color: rgba(46, 160, 110, .45);
+            color: #8fe0b8;
         }
-        .copy-icon {
-            display: inline-block;
-            transition: transform 0.25s var(--ease-out);
+        .copy-btn.is-error {
+            background: rgba(224, 87, 78, .12);
+            border-color: rgba(224, 87, 78, .4);
+            color: #f2a09a;
         }
-        .copy-btn.is-done .copy-icon {
-            animation: check-bounce 0.3s var(--ease-out);
-        }
-        @keyframes check-bounce {
-            0% { transform: scale(0.5); }
-            70% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+        .copy-btn .ico { display: inline-block; }
+        .copy-btn.is-done .ico { animation: tick 320ms var(--ease); }
+        @keyframes tick {
+            0% { transform: scale(.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        /* ---------- QRIS Container ---------- */
-        .qris-preview {
-            cursor: zoom-in;
-            transition: transform 0.2s var(--ease-out);
-        }
-        @media (hover: hover) and (pointer: fine) {
-            .qris-preview:hover {
-                transform: scale(1.015);
-            }
+        .row-open {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 10px; padding: 0;
+            background: none; border: 0;
+            color: var(--text-2); font-size: 12px;
         }
 
-        /* ---------- Modal ---------- */
+        /* Aksen warna per metode */
+        .row--shopee { --accent-color: var(--shopee); }
+        .row--bni    { --accent-color: var(--bni); }
+        .qris-accent { --accent-color: var(--qris); }
+
+        /* =========================================================
+           9. FOOTER
+           ========================================================= */
+        .footer {
+            margin-top: 40px;
+            padding-top: 22px;
+            border-top: 1px solid var(--line);
+            display: flex; flex-direction: column; gap: 10px;
+            align-items: flex-start;
+            font-size: 12px; color: var(--text-3);
+        }
+        @media (min-width: 640px) {
+            .footer { flex-direction: row; justify-content: space-between; align-items: center; }
+        }
+        .footer p { margin: 0; }
+
+        /* =========================================================
+           10. MODAL QRIS
+           ========================================================= */
         #qris-modal {
-            transition: opacity 0.25s var(--ease-out), visibility 0.25s;
+            position: fixed; inset: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: center;
+            padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
+            background: rgba(7, 9, 11, .78);
+            opacity: 0; visibility: hidden;
+            transition: opacity var(--dur) var(--ease), visibility var(--dur);
         }
-        #qris-modal.is-closed {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
+        #qris-modal.is-open { opacity: 1; visibility: visible; }
+
+        .modal-panel {
+            width: 100%; max-width: 380px;
+            max-height: calc(100dvh - 32px);
+            display: flex; flex-direction: column;
+            padding: 18px;
+            border-radius: var(--r-lg);
+            background: var(--surface);
+            border: 1px solid var(--line-strong);
+            box-shadow: var(--shadow-2);
+            transform: translateY(10px) scale(.98);
+            transition: transform var(--dur) var(--ease);
         }
-        #qris-modal .modal-content {
-            transition: transform 0.3s var(--ease-out), opacity 0.3s;
+        #qris-modal.is-open .modal-panel { transform: none; }
+
+        .modal-head {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            margin-bottom: 14px;
         }
-        #qris-modal.is-closed .modal-content {
-            transform: scale(0.95) translateY(10px);
-            opacity: 0;
+        .modal-head h2 { margin: 0; font-size: 15px; font-weight: 600; }
+
+        .modal-body {
+            min-height: 0; overflow: auto;
+            display: grid; place-items: center;
+            padding: 14px;
+            background: #fff; border-radius: var(--r-md);
+        }
+        .modal-body img {
+            width: 100%; height: auto; max-height: calc(100dvh - 210px);
+            object-fit: contain;
         }
 
-        /* ---------- Toast ---------- */
+        .modal-foot {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin-top: 14px;
+        }
+        .modal-foot .btn { width: 100%; }
+
+        .modal-hint { margin: 12px 0 0; text-align: center; font-size: 12px; color: var(--text-3); }
+
+        /* =========================================================
+           11. TOAST
+           ========================================================= */
         #toast {
-            transition: transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
-        }
-        #toast.is-hidden {
+            position: fixed;
+            left: 50%;
+            bottom: calc(env(safe-area-inset-bottom) + 20px);
+            z-index: 70;
+            display: flex; align-items: center; gap: 10px;
+            max-width: min(92vw, 380px);
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: var(--surface-3);
+            border: 1px solid var(--line-strong);
+            box-shadow: var(--shadow-2);
+            font-size: 13px; color: var(--text);
             opacity: 0;
-            transform: translate(-50%, 16px);
+            transform: translate(-50%, 10px);
             pointer-events: none;
+            transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+        }
+        #toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+        #toast i { flex-shrink: 0; }
+
+        /* =========================================================
+           12. RESPONSIVE KECIL
+           ========================================================= */
+        @media (max-width: 380px) {
+            .row-number-value { font-size: 14px; letter-spacing: .02em; }
         }
 
-        /* ---------- Focus States ---------- */
-        :focus-visible {
-            outline: 2px solid #38bdf8;
-            outline-offset: 2px;
-            border-radius: 8px;
-        }
-
-        /* ---------- Reduced Motion ---------- */
+        /* =========================================================
+           13. REDUCED MOTION
+           ========================================================= */
         @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
             *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-                scroll-behavior: auto !important;
+                animation-duration: 1ms !important;
+                animation-delay: 0ms !important;
+                transition-duration: 1ms !important;
             }
-            .reveal { opacity: 1; transform: none; }
-            .splash-pulse { display: none; }
+            .enter { opacity: 1; transform: none; }
         }
     </style>
 </head>
-<body class="min-h-screen antialiased selection:bg-sky-500 selection:text-white flex flex-col justify-between">
+<body>
 
-    <!-- SPLASH SCREEN -->
-    <div id="splash" role="status" aria-live="polite" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-fintech-bg">
-        <div class="relative flex items-center justify-center mb-5" aria-hidden="true">
-            <div class="splash-pulse absolute w-16 h-16 rounded-full bg-sky-500/15"></div>
-            <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sky-400">
-                <i class="fa-solid fa-shield-halved text-lg"></i>
-            </div>
-        </div>
-        <span class="text-xs font-medium tracking-widest text-slate-400 uppercase">Secure Gateway</span>
+    <!-- SPLASH -->
+    <div id="splash" aria-hidden="true">
+        <div class="splash-mark"><i class="fa-solid fa-wallet" aria-hidden="true"></i></div>
+        <p class="splash-label">Memuat pembayaran</p>
     </div>
 
-    <!-- HEADER / HERO PROFILE -->
-    <header class="w-full max-w-lg mx-auto px-6 pt-12 pb-6 text-center">
-        <div class="reveal inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 text-sky-400 text-xl font-bold mb-4 shadow-sm" style="--d: 0ms">
-            CM
-        </div>
-        <h1 class="reveal text-lg font-semibold tracking-tight text-white mb-1" style="--d: 60ms">Charis Maulana</h1>
-        <p class="reveal text-xs text-slate-400 max-w-xs mx-auto leading-relaxed" style="--d: 120ms">
-            Portal pembayaran resmi. Silakan pilih metode transfer atau pindai kode di bawah.
-        </p>
-    </header>
+    <main class="page">
 
-    <!-- PAYMENT CONTENT CONTAINER -->
-    <main class="w-full max-w-lg mx-auto px-6 pb-12 space-y-4 flex-grow">
-
-        <!-- QRIS SECTION -->
-        <section class="reveal panel-fintech rounded-2xl p-5" style="--d: 180ms" aria-labelledby="qris-heading">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-rose-400 text-sm">
-                        <i class="fa-solid fa-qrcode"></i>
-                    </div>
-                    <div>
-                        <h2 id="qris-heading" class="text-sm font-medium text-white">QRIS Universal</h2>
-                        <p class="text-[11px] text-slate-400">Semua e-wallet &amp; mobile banking</p>
-                    </div>
-                </div>
-                <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">Instant</span>
+        <!-- HERO -->
+        <header class="hero">
+            <div class="enter" style="--d: 0ms">
+                <div class="monogram" aria-hidden="true">CM</div>
+                <p class="hero-eyebrow">Pembayaran pribadi</p>
+                <h1>Charis Maulana</h1>
+                <p class="hero-lead">Pilih salah satu metode di bawah. Nomor tujuan dapat disalin dengan satu ketukan.</p>
             </div>
 
-            <div class="bg-white p-3 rounded-xl flex flex-col items-center shadow-inner">
-                <button type="button" id="qris-trigger" class="qris-preview bg-transparent p-0 border-0 rounded-lg overflow-hidden" aria-haspopup="dialog" aria-label="Perbesar gambar QRIS">
-                    <img id="qris-img" 
-                         src="https://via.placeholder.com/300x300.png?text=QRIS+ANDA+DISINI" 
-                         alt="QRIS Code Charis Maulana" 
-                         width="180" height="180"
-                         class="w-44 h-44 object-contain">
-                </button>
-                <span class="text-[10px] text-slate-500 mt-2 font-medium">Ketuk gambar untuk memperbesar</span>
+            <aside class="hero-note enter" style="--d: 120ms" aria-label="Catatan konfirmasi">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <p><strong>Setelah transfer</strong>, mohon konfirmasi kepada penerima agar pembayaran dapat dicatat.</p>
+            </aside>
+        </header>
+
+        <!-- QRIS -->
+        <section aria-labelledby="h-payments">
+            <div class="section-head enter" style="--d: 180ms">
+                <h2 id="h-payments">Metode pembayaran</h2>
+                <span>3 pilihan</span>
+            </div>
+
+            <article class="qris qris-accent enter" style="--d: 220ms" aria-labelledby="h-qris">
+                <div class="qris-frame">
+                    <button type="button" class="qris-trigger" id="qris-trigger" aria-haspopup="dialog" aria-controls="qris-modal">
+                        <img id="qris-img"
+                             class="qris-img"
+                             src="https://via.placeholder.com/392x392.png?text=QRIS+ANDA+DISINI"
+                             alt="Kode QRIS atas nama Charis Maulana"
+                             width="196" height="196">
+                    </button>
+                </div>
+
+                <div class="qris-meta">
+                    <h3 id="h-qris">QRIS</h3>
+                    <p>Pindai dengan aplikasi m-Banking atau dompet digital apa pun.</p>
+                    <ul class="qris-tags" aria-label="Aplikasi yang didukung">
+                        <li>GoPay</li><li>OVO</li><li>DANA</li><li>ShopeePay</li><li>BCA</li><li>Mandiri</li><li>dan lainnya</li>
+                    </ul>
+                    <div class="qris-actions">
+                        <button type="button" class="btn btn-primary" id="qris-zoom-btn" aria-haspopup="dialog" aria-controls="qris-modal">
+                            <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                            Perbesar
+                        </button>
+                        <button type="button" class="btn btn-ghost" id="qris-download-btn">
+                            <i class="fa-solid fa-arrow-down-to-line" aria-hidden="true"></i>
+                            Unduh
+                        </button>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ROWS -->
+            <div class="rows">
+                <!-- ShopeePay -->
+                <article class="row row--shopee enter" style="--d: 300ms" aria-labelledby="h-shopee">
+                    <div class="row-id">
+                        <div class="row-logo" aria-hidden="true"><i class="fa-solid fa-bag-shopping"></i></div>
+                        <div>
+                            <h3 class="row-title" id="h-shopee">ShopeePay</h3>
+                            <p class="row-sub">a.n. Charis Maulana</p>
+                        </div>
+                    </div>
+
+                    <div class="row-number">
+                        <div style="min-width:0; flex:1">
+                            <span class="row-number-label">Nomor tujuan</span>
+                            <span class="row-number-value mono" id="shopeepay-num">+62 813-3666-3071</span>
+                        </div>
+                        <button type="button" class="copy-btn" data-copy="+6281336663071" data-label="ShopeePay">
+                            <i class="fa-regular fa-copy ico" aria-hidden="true"></i>
+                            <span class="btn-text">Salin</span>
+                        </button>
+                    </div>
+                </article>
+
+                <!-- BNI -->
+                <article class="row row--bni enter" style="--d: 360ms" aria-labelledby="h-bni">
+                    <div class="row-id">
+                        <div class="row-logo" aria-hidden="true"><i class="fa-solid fa-building-columns"></i></div>
+                        <div>
+                            <h3 class="row-title" id="h-bni">BNI</h3>
+                            <p class="row-sub">Bank Negara Indonesia · a.n. Charis Maulana</p>
+                        </div>
+                    </div>
+
+                    <div class="row-number">
+                        <div style="min-width:0; flex:1">
+                            <span class="row-number-label">Nomor rekening</span>
+                            <span class="row-number-value mono" id="bni-num">0697962588</span>
+                        </div>
+                        <button type="button" class="copy-btn" data-copy="0697962588" data-label="rekening BNI">
+                            <i class="fa-regular fa-copy ico" aria-hidden="true"></i>
+                            <span class="btn-text">Salin</span>
+                        </button>
+                    </div>
+                </article>
             </div>
         </section>
 
-        <!-- E-WALLET: SHOPEEPAY -->
-        <section class="reveal panel-fintech rounded-2xl p-5" style="--d: 240ms" aria-labelledby="shopeepay-heading">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-orange-400 text-sm">
-                        <i class="fa-solid fa-wallet"></i>
-                    </div>
-                    <div>
-                        <h2 id="shopeepay-heading" class="text-sm font-medium text-white">ShopeePay</h2>
-                        <p class="text-[11px] text-slate-400">A/N Charis Maulana</p>
-                    </div>
-                </div>
-                <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">E-Wallet</span>
-            </div>
-
-            <div class="flex items-center justify-between bg-slate-950/60 rounded-xl px-4 py-3 border border-slate-800/80">
-                <span class="font-mono text-xs sm:text-sm font-medium tracking-wide text-slate-200">+62 813-3666-3071</span>
-                <button type="button" 
-                        class="copy-btn shrink-0 min-h-[36px] px-3.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center space-x-1.5 border border-slate-700"
-                        data-copy="+6281336663071" 
-                        data-label="ShopeePay">
-                    <i class="fa-regular fa-copy copy-icon"></i>
-                    <span class="btn-label">Salin</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- BANK TRANSFER: BNI -->
-        <section class="reveal panel-fintech rounded-2xl p-5" style="--d: 300ms" aria-labelledby="bni-heading">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-teal-400 text-sm">
-                        <i class="fa-solid fa-building-columns"></i>
-                    </div>
-                    <div>
-                        <h2 id="bni-heading" class="text-sm font-medium text-white">Bank Negara Indonesia (BNI)</h2>
-                        <p class="text-[11px] text-slate-400">A/N Charis Maulana</p>
-                    </div>
-                </div>
-                <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-teal-500/10 text-teal-400 border border-teal-500/20">Transfer Bank</span>
-            </div>
-
-            <div class="flex items-center justify-between bg-slate-950/60 rounded-xl px-4 py-3 border border-slate-800/80">
-                <span class="font-mono text-xs sm:text-sm font-medium tracking-wide text-slate-200">0697962588</span>
-                <button type="button" 
-                        class="copy-btn shrink-0 min-h-[36px] px-3.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center space-x-1.5 border border-slate-700"
-                        data-copy="0697962588" 
-                        data-label="BNI">
-                    <i class="fa-regular fa-copy copy-icon"></i>
-                    <span class="btn-label">Salin</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- SECURITY NOTICE -->
-        <div class="reveal pt-2 text-center" style="--d: 360ms">
-            <p class="text-[11px] text-slate-400 inline-flex items-center space-x-1.5 bg-slate-900/60 px-3.5 py-2 rounded-lg border border-slate-800/60">
-                <i class="fa-solid fa-lock text-sky-400"></i>
-                <span>Harap konfirmasi setelah melakukan transaksi pembayaran.</span>
-            </p>
-        </div>
-
+        <footer class="footer enter" style="--d: 440ms">
+            <p>&copy; 2026 Charis Maulana</p>
+            <p>Pastikan nama penerima sesuai sebelum mengirim.</p>
+        </footer>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="w-full py-6 text-center text-[11px] text-slate-500 border-t border-slate-900">
-        &copy; 2026 Charis Maulana. All rights reserved.
-    </footer>
-
-    <!-- QRIS ZOOM MODAL -->
-    <div id="qris-modal" class="is-closed fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90" aria-hidden="true">
-        <div id="qris-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title" class="modal-content relative w-full max-w-xs bg-white rounded-2xl p-5 shadow-2xl">
-            <div class="flex items-center justify-between mb-4">
-                <h3 id="modal-title" class="text-xs font-semibold uppercase tracking-wider text-slate-600">QRIS Pembayaran</h3>
-                <button type="button" id="qris-close" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors" aria-label="Tutup modal">
-                    <i class="fa-solid fa-xmark text-sm"></i>
+    <!-- QRIS MODAL -->
+    <div id="qris-modal" aria-hidden="true">
+        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+            <div class="modal-head">
+                <h2 id="modal-title">QRIS · Charis Maulana</h2>
+                <button type="button" class="btn btn-ghost btn-icon" id="modal-close" aria-label="Tutup">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
             </div>
-            <div class="bg-slate-50 p-3 rounded-xl flex items-center justify-center border border-slate-100">
-                <img id="qris-zoom-img" src="" alt="QRIS Diperbesar" class="w-full h-auto object-contain rounded">
+            <div class="modal-body">
+                <img id="modal-img" src="" alt="Kode QRIS atas nama Charis Maulana, versi diperbesar">
             </div>
+            <div class="modal-foot">
+                <button type="button" class="btn btn-ghost" id="modal-download">
+                    <i class="fa-solid fa-arrow-down-to-line" aria-hidden="true"></i>
+                    Unduh
+                </button>
+                <button type="button" class="btn btn-primary" id="modal-done">Selesai</button>
+            </div>
+            <p class="modal-hint">Tekan Esc atau ketuk di luar untuk menutup.</p>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" role="status" aria-live="polite" class="is-hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center space-x-2 bg-slate-900 text-slate-100 px-4 py-2.5 rounded-xl shadow-xl border border-slate-800 text-xs font-medium">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-        <span id="toast-msg">Berhasil disalin</span>
+    <!-- TOAST -->
+    <div id="toast" role="status" aria-live="polite">
+        <i id="toast-icon" class="fa-solid fa-circle-check" style="color:#8fe0b8" aria-hidden="true"></i>
+        <span id="toast-msg"></span>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
-        (function() {
+        (function () {
             'use strict';
 
-            /* ---------- Splash Screen Handler ---------- */
-            const splash = document.getElementById('splash');
+            const $ = (sel, root = document) => root.querySelector(sel);
+            const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+            /* ---------- Splash: singkat, tidak pernah menggantung ---------- */
+            const splash = $('#splash');
             const hideSplash = () => {
                 if (!splash || splash.classList.contains('is-hidden')) return;
                 splash.classList.add('is-hidden');
-                splash.setAttribute('aria-hidden', 'true');
-                setTimeout(() => splash.remove(), 400);
+                setTimeout(() => splash.remove(), 600);
             };
-
-            const minTimer = setTimeout(hideSplash, 600);
-            const failsafe = setTimeout(hideSplash, 2000);
+            const splashTimer = setTimeout(hideSplash, 1100);
             window.addEventListener('load', () => {
-                clearTimeout(minTimer);
-                clearTimeout(failsafe);
-                setTimeout(hideSplash, 200);
+                clearTimeout(splashTimer);
+                setTimeout(hideSplash, 350);
             }, { once: true });
+            // Failsafe jika event load tidak pernah datang
+            setTimeout(hideSplash, 2200);
 
-            /* ---------- Toast Notification System ---------- */
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-msg');
-            const toastIcon = document.getElementById('toast-icon');
-            let toastTimeout = null;
+            /* ---------- Toast ---------- */
+            const toast = $('#toast');
+            const toastMsg = $('#toast-msg');
+            const toastIcon = $('#toast-icon');
+            let toastTimer = null;
 
             function showToast(message, type = 'success') {
                 toastMsg.textContent = message;
-                toastIcon.className = type === 'success' 
-                    ? 'fa-solid fa-circle-check text-emerald-400 text-sm' 
-                    : 'fa-solid fa-triangle-exclamation text-amber-400 text-sm';
-                
-                toast.classList.remove('is-hidden');
-                clearTimeout(toastTimeout);
-                toastTimeout = setTimeout(() => {
-                    toast.classList.add('is-hidden');
-                }, 2500);
+                toastIcon.className = type === 'success'
+                    ? 'fa-solid fa-circle-check'
+                    : 'fa-solid fa-circle-exclamation';
+                toastIcon.style.color = type === 'success' ? '#8fe0b8' : '#f2a09a';
+                toast.classList.add('is-visible');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2400);
             }
 
-            /* ---------- Clipboard Copy Handler ---------- */
-            async function fallbackCopy(text) {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.setAttribute('readonly', '');
-                textarea.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
-                document.body.appendChild(textarea);
-                textarea.select();
-                let success = false;
-                try {
-                    success = document.execCommand('copy');
-                } catch (e) {
-                    success = false;
-                }
-                textarea.remove();
-                return success;
+            /* ---------- Clipboard dengan fallback ---------- */
+            function legacyCopy(text) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.setAttribute('readonly', '');
+                ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+                document.body.appendChild(ta);
+                ta.select();
+                ta.setSelectionRange(0, text.length);
+                let ok = false;
+                try { ok = document.execCommand('copy'); } catch (_) { ok = false; }
+                ta.remove();
+                return ok;
             }
 
             async function copyText(text) {
@@ -378,112 +740,141 @@
                     try {
                         await navigator.clipboard.writeText(text);
                         return true;
-                    } catch (e) {
-                        return await fallbackCopy(text);
-                    }
+                    } catch (_) { /* izin ditolak: lanjut ke fallback */ }
                 }
-                return await fallbackCopy(text);
+                return legacyCopy(text);
             }
 
-            function setButtonState(btn, state) {
-                const icon = btn.querySelector('.copy-icon');
-                const label = btn.querySelector('.btn-label');
-                
-                btn.classList.remove('bg-slate-800', 'bg-emerald-600', 'bg-rose-600', 'border-slate-700');
-                
-                if (state === 'done') {
-                    btn.classList.add('bg-emerald-600', 'border-emerald-500', 'text-white');
-                    icon.className = 'fa-solid fa-check copy-icon';
-                    label.textContent = 'Tersalin';
-                    btn.classList.add('is-done');
-                } else if (state === 'error') {
-                    btn.classList.add('bg-rose-600', 'border-rose-500', 'text-white');
-                    icon.className = 'fa-solid fa-triangle-exclamation copy-icon';
-                    label.textContent = 'Gagal';
-                } else {
-                    btn.classList.add('bg-slate-800', 'border-slate-700', 'text-slate-200');
-                    icon.className = 'fa-regular fa-copy copy-icon';
-                    label.textContent = 'Salin';
-                    btn.classList.remove('is-done');
-                }
-            }
+            /* ---------- Tombol salin ---------- */
+            const defaultCopyHTML = { };
 
-            document.querySelectorAll('.copy-btn').forEach(btn => {
+            $$('.copy-btn').forEach((btn) => {
+                btn.dataset.idle = btn.innerHTML;
                 btn.addEventListener('click', async () => {
                     if (btn.disabled) return;
                     btn.disabled = true;
-                    
-                    const textToCopy = btn.getAttribute('data-copy');
-                    const labelName = btn.getAttribute('data-label');
-                    const success = await copyText(textToCopy);
+                    const ok = await copyText(btn.dataset.copy);
+                    const label = btn.querySelector('.btn-text');
+                    const icon = btn.querySelector('.ico');
 
-                    if (success) {
-                        setButtonState(btn, 'done');
-                        showToast(`Nomor ${labelName} berhasil disalin`);
+                    if (ok) {
+                        btn.classList.add('is-done');
+                        icon.className = 'fa-solid fa-check ico';
+                        label.textContent = 'Tersalin';
+                        showToast(`Nomor ${btn.dataset.label} berhasil disalin`);
                     } else {
-                        setButtonState(btn, 'error');
-                        showToast('Gagal menyalin, silakan salin manual', 'error');
+                        btn.classList.add('is-error');
+                        icon.className = 'fa-solid fa-triangle-exclamation ico';
+                        label.textContent = 'Gagal';
+                        showToast('Tidak dapat menyalin otomatis. Salin nomor secara manual.', 'error');
                     }
 
                     setTimeout(() => {
-                        setButtonState(btn, 'idle');
+                        btn.classList.remove('is-done', 'is-error');
+                        icon.className = 'fa-regular fa-copy ico';
+                        label.textContent = 'Salin';
                         btn.disabled = false;
                     }, 2000);
                 });
             });
 
-            /* ---------- QRIS Modal Handler ---------- */
-            const modal = document.getElementById('qris-modal');
-            const dialog = document.getElementById('qris-dialog');
-            const trigger = document.getElementById('qris-trigger');
-            const closeBtn = document.getElementById('qris-close');
-            const sourceImg = document.getElementById('qris-img');
-            const zoomImg = document.getElementById('qris-zoom-img');
-            let previousFocus = null;
+            /* ---------- Modal QRIS ---------- */
+            const modal = $('#qris-modal');
+            const panel = $('.modal-panel', modal);
+            const srcImg = $('#qris-img');
+            const modalImg = $('#modal-img');
+            const closeBtn = $('#modal-close');
+            const doneBtn = $('#modal-done');
+            const modalDownload = $('#modal-download');
+            const qrisDownload = $('#qris-download-btn');
+            let lastFocus = null;
+            let qrisAvailable = true;
 
             function openModal() {
-                previousFocus = document.activeElement;
-                zoomImg.src = sourceImg.src;
-                modal.classList.remove('is-closed');
+                if (!qrisAvailable) {
+                    showToast('Kode QRIS belum tersedia.', 'error');
+                    return;
+                }
+                lastFocus = document.activeElement;
+                modalImg.src = srcImg.src;
+                modal.classList.add('is-open');
                 modal.setAttribute('aria-hidden', 'false');
                 document.body.style.overflow = 'hidden';
-                requestAnimationFrame(() => closeBtn.focus());
+                requestAnimationFrame(() => doneBtn.focus());
             }
 
             function closeModal() {
-                if (modal.classList.contains('is-closed')) return;
-                modal.classList.add('is-closed');
+                if (!modal.classList.contains('is-open')) return;
+                modal.classList.remove('is-open');
                 modal.setAttribute('aria-hidden', 'true');
                 document.body.style.overflow = '';
-                if (previousFocus && typeof previousFocus.focus === 'function') {
-                    previousFocus.focus();
-                }
+                if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
             }
 
-            if (trigger) trigger.addEventListener('click', openModal);
-            if (closeBtn) closeBtn.addEventListener('click', closeModal);
-            
+            $('#qris-trigger').addEventListener('click', openModal);
+            $('#qris-zoom-btn').addEventListener('click', openModal);
+            closeBtn.addEventListener('click', closeModal);
+            doneBtn.addEventListener('click', closeModal);
+
             modal.addEventListener('click', (e) => {
-                if (!dialog.contains(e.target)) closeModal();
+                if (!panel.contains(e.target)) closeModal();
             });
 
             document.addEventListener('keydown', (e) => {
-                if (modal.classList.contains('is-closed')) return;
+                if (!modal.classList.contains('is-open')) return;
                 if (e.key === 'Escape') {
                     e.preventDefault();
                     closeModal();
-                } else if (e.key === 'Tab') {
-                    // Basic focus trap inside modal
+                    return;
+                }
+                if (e.key === 'Tab') {
+                    // Fokus terkurung di dalam dialog
+                    const focusables = [closeBtn, modalDownload, doneBtn];
+                    const i = focusables.indexOf(document.activeElement);
                     e.preventDefault();
-                    closeBtn.focus();
+                    const next = e.shiftKey
+                        ? focusables[(i - 1 + focusables.length) % focusables.length]
+                        : focusables[(i + 1) % focusables.length];
+                    next.focus();
                 }
             });
 
-            // Fallback for missing image asset
-            sourceImg.addEventListener('error', () => {
-                sourceImg.alt = 'QRIS belum tersedia';
-            });
+            /* ---------- Unduh QRIS ---------- */
+            async function downloadQris() {
+                const url = srcImg.src;
+                try {
+                    const res = await fetch(url, { mode: 'cors' });
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const blob = await res.blob();
+                    const objectUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = objectUrl;
+                    a.download = 'qris-charis-maulana.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    setTimeout(() => URL.revokeObjectURL(objectUrl), 4000);
+                    showToast('Gambar QRIS sedang diunduh');
+                } catch (_) {
+                    // Sumber lintas-domain tanpa CORS: buka di tab baru sebagai cadangan
+                    const w = window.open(url, '_blank', 'noopener');
+                    if (w) showToast('Gambar dibuka di tab baru. Simpan dari sana.');
+                    else showToast('Tidak dapat mengunduh gambar.', 'error');
+                }
+            }
 
+            qrisDownload.addEventListener('click', downloadQris);
+            modalDownload.addEventListener('click', downloadQris);
+
+            /* ---------- Gambar QRIS: fallback jika gagal dimuat ---------- */
+            function markQrisUnavailable() {
+                qrisAvailable = false;
+                srcImg.alt = 'Kode QRIS belum tersedia';
+                qrisDownload.disabled = true;
+                $('#qris-zoom-btn').disabled = true;
+            }
+            srcImg.addEventListener('error', markQrisUnavailable);
+            if (srcImg.complete && srcImg.naturalWidth === 0) markQrisUnavailable();
         })();
     </script>
 </body>
