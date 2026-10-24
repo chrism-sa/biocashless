@@ -1,442 +1,373 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#101b1a">
-  <meta name="description" content="Informasi metode pembayaran untuk Charis Maulana.">
-  <title>Pembayaran — Charis Maulana</title>
-  <style>
-    :root{
-      color-scheme:light;
-      --ink:#172321; --muted:#697572; --paper:#f5f4ef; --white:#fffefa;
-      --line:#e4e5dd; --forest:#183c35; --forest-2:#24564a;
-      --orange:#ee6b3b; --blue:#1769aa; --radius:22px;
-      --shadow:0 18px 50px rgba(21,39,34,.08);
-      --ease:cubic-bezier(.2,.75,.25,1);
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
-    button,a{font:inherit}
-    button{cursor:pointer}
-    a{color:inherit}
-    .page-shell{min-height:100svh;overflow:hidden;position:relative}
-    .topbar{max-width:1120px;margin:auto;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-    .brand{display:flex;align-items:center;gap:11px;text-decoration:none;font-weight:750;letter-spacing:-.035em}
-    .brand-mark{width:34px;height:34px;border-radius:11px;background:var(--forest);display:grid;place-items:center;color:#fff;font-size:13px;letter-spacing:-.05em}
-    .top-note{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);letter-spacing:.035em}
-    .status-dot{width:7px;height:7px;background:#4c9875;border-radius:50%}
-    main{max-width:1120px;margin:0 auto;padding:30px 28px 80px}
-    .intro{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(270px,.9fr);align-items:end;gap:50px;padding:46px 0 54px}
-    .eyebrow{display:flex;align-items:center;gap:10px;text-transform:uppercase;letter-spacing:.16em;font-size:10px;font-weight:800;color:var(--forest-2);margin:0 0 20px}
-    .eyebrow:before{content:"";height:1px;width:25px;background:var(--orange)}
-    h1{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-size:clamp(43px,6vw,72px);line-height:.99;letter-spacing:-.055em;max-width:650px;margin:0}
-    h1 em{font-weight:400;color:var(--forest-2)}
-    .intro-copy{max-width:350px;color:var(--muted);font-size:15px;margin:0 0 5px}
-    .intro-copy strong{color:var(--ink);font-weight:650}
-    .section-head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin:0 0 18px}
-    .section-head h2{font-size:14px;letter-spacing:-.01em;margin:0;font-weight:750}
-    .section-head span{font-size:12px;color:var(--muted)}
-    .payment-grid{display:grid;grid-template-columns:1.08fr 1fr 1fr;gap:14px;align-items:stretch}
-    .payment{min-width:0;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:23px;display:flex;flex-direction:column;position:relative;transition:border-color .22s var(--ease),transform .22s var(--ease),box-shadow .22s var(--ease)}
-    .payment:hover{transform:translateY(-3px);border-color:#c8d0c8;box-shadow:var(--shadow)}
-    .payment.qris{background:var(--forest);border-color:var(--forest);color:#fff;overflow:hidden}
-    .payment.qris:after{content:"";position:absolute;width:210px;height:210px;border:1px solid rgba(255,255,255,.11);border-radius:50%;right:-105px;top:-105px;pointer-events:none}
-    .method-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:28px}
-    .method-name{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:750;letter-spacing:-.01em}
-    .method-symbol{width:36px;height:36px;border-radius:12px;background:#f4f1e9;display:grid;place-items:center;flex:0 0 auto}
-    .qris .method-symbol{background:rgba(255,255,255,.12)}
-    .method-symbol svg{width:21px;height:21px;display:block}
-    .method-index{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
-    .qris .method-index{color:rgba(255,255,255,.6)}
-    .method-title{font-family:Georgia,"Times New Roman",serif;font-size:26px;line-height:1.08;letter-spacing:-.035em;margin:0 0 9px;font-weight:500}
-    .method-desc{font-size:12px;color:var(--muted);margin:0 0 20px}
-    .qris .method-desc{color:rgba(255,255,255,.7)}
-    .qr-frame{background:#fff;border-radius:14px;padding:12px;display:grid;place-items:center;margin:0 0 17px;min-height:190px}
-    .qr-frame img{display:block;width:min(100%,220px);aspect-ratio:1/1;object-fit:contain}
-    .qr-fallback{color:#68736e;text-align:center;font-size:12px;padding:20px 8px;display:none}
-    .qr-fallback strong{display:block;font-size:13px;color:#26352f;margin-bottom:5px}
-    .qr-help{font-size:11px;color:rgba(255,255,255,.72);margin:0 0 17px}
-    .data-label{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);margin:0 0 7px}
-    .qris .data-label{color:rgba(255,255,255,.6)}
-    .data-value{font-size:19px;line-height:1.35;font-weight:750;letter-spacing:-.035em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;margin:0}
-    .account-name{font-size:12px;color:var(--muted);margin:6px 0 0}
-    .qris .account-name{color:rgba(255,255,255,.68)}
-    .rule{height:1px;background:var(--line);margin:20px 0}
-    .qris .rule{background:rgba(255,255,255,.16)}
-    .actions{display:flex;gap:8px;margin-top:auto;padding-top:22px;flex-wrap:wrap}
-    .btn{min-height:44px;border-radius:12px;border:1px solid var(--line);padding:10px 13px;background:transparent;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:750;text-decoration:none;transition:background .18s ease,border-color .18s ease,transform .18s ease;flex:1 1 auto}
-    .btn:hover{background:#f2f2ec;border-color:#c9cec5}
-    .btn:active{transform:scale(.98)}
-    .btn svg{width:15px;height:15px;flex:0 0 auto}
-    .btn-primary{background:var(--forest);border-color:var(--forest);color:white}
-    .btn-primary:hover{background:var(--forest-2);border-color:var(--forest-2)}
-    .qris .btn-primary{background:#fff;color:var(--forest);border-color:#fff}
-    .qris .btn-primary:hover{background:#e9eee8}
-    .qris .btn-quiet{color:#fff;border-color:rgba(255,255,255,.3)}
-    .qris .btn-quiet:hover{background:rgba(255,255,255,.1)}
-    .brand-wordmark{font-size:12px;font-weight:850;letter-spacing:-.045em;line-height:1}
-    .brand-wordmark.shopee{color:#e75b32}
-    .brand-wordmark.bni{color:#1769aa;letter-spacing:.02em}
-    .guidance{margin-top:25px;border-top:1px solid #dedfd7;border-bottom:1px solid #dedfd7;padding:20px 0;display:grid;grid-template-columns:1fr 1fr;gap:30px}
-    .guidance-item{display:flex;gap:13px;align-items:flex-start}
-    .guidance-num{font-family:Georgia,serif;color:var(--orange);font-size:21px;line-height:1}
-    .guidance h3{font-size:12px;margin:0 0 5px}
-    .guidance p{font-size:12px;color:var(--muted);margin:0;max-width:440px}
-    footer{max-width:1120px;margin:0 auto;padding:22px 28px calc(24px + env(safe-area-inset-bottom));border-top:1px solid #e1e1d9;display:flex;align-items:center;justify-content:space-between;gap:18px;color:var(--muted);font-size:11px}
-    footer strong{color:var(--ink);font-weight:700}
-    .toast-region{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100;display:flex;flex-direction:column;align-items:center;gap:8px;width:min(92vw,380px);pointer-events:none}
-    .toast{background:#172b25;color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 35px rgba(0,0,0,.2);padding:12px 16px;border-radius:13px;font-size:12px;display:flex;gap:10px;align-items:center;opacity:0;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease;width:100%}
-    .toast.is-visible{opacity:1;transform:translateY(0)}
-    .toast-mark{width:7px;height:7px;border-radius:50%;background:#7ac49a;flex:0 0 auto}
-    .toast[data-kind="error"] .toast-mark{background:#ff967c}
-    .modal[hidden]{display:none}
-    .modal{position:fixed;inset:0;z-index:90;padding:20px;display:grid;place-items:center}
-    .modal-backdrop{position:absolute;inset:0;background:rgba(10,20,17,.78);backdrop-filter:blur(4px)}
-    .modal-panel{position:relative;width:min(100%,440px);max-height:calc(100dvh - 40px);overflow:auto;background:var(--white);border-radius:22px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.25);animation:modal-in .22s var(--ease) both}
-    .modal-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
-    .modal-top h2{font-size:16px;margin:0}
-    .icon-btn{width:40px;height:40px;border:1px solid var(--line);background:transparent;border-radius:12px;display:grid;place-items:center;color:var(--ink)}
-    .icon-btn:hover{background:#f0f1eb}
-    .icon-btn svg{width:18px;height:18px}
-    .modal-qr{background:white;border:1px solid var(--line);border-radius:15px;padding:14px;display:grid;place-items:center}
-    .modal-qr img{width:min(100%,340px);aspect-ratio:1/1;object-fit:contain;display:block}
-    .modal-note{font-size:12px;color:var(--muted);margin:15px 0 0}
-    .modal-actions{display:flex;gap:9px;margin-top:17px}
-    .modal-actions .btn{min-width:0}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-    button:focus-visible,a:focus-visible{outline:3px solid #e78a62;outline-offset:3px}
-    @keyframes enter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes modal-in{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
-    .intro,.payment,.guidance{animation:enter .5s var(--ease) both}
-    .payment:nth-child(2){animation-delay:.06s}.payment:nth-child(3){animation-delay:.12s}
-    @media(max-width:800px){
-      main{padding-top:15px}
-      .intro{grid-template-columns:1fr;gap:22px;padding:38px 0 38px}
-      .intro-copy{max-width:520px}
-      .payment-grid{grid-template-columns:1fr 1fr}
-      .payment.qris{grid-column:1/-1}
-      .qr-frame{min-height:160px}
-      .qr-frame img{width:min(100%,190px)}
-    }
-    @media(max-width:520px){
-      .topbar{padding:17px 19px}
-      main{padding:10px 19px 54px}
-      .top-note{font-size:10px}
-      .intro{padding:33px 0 32px}
-      h1{font-size:clamp(43px,12vw,59px)}
-      .intro-copy{font-size:14px}
-      .section-head{align-items:flex-start;flex-direction:column;gap:4px}
-      .payment-grid{grid-template-columns:1fr;gap:11px}
-      .payment.qris{grid-column:auto}
-      .payment{padding:20px;border-radius:19px}
-      .method-head{margin-bottom:21px}
-      .method-title{font-size:25px}
-      .qr-frame{min-height:0}
-      .qr-frame img{width:min(100%,230px)}
-      .guidance{grid-template-columns:1fr;gap:19px}
-      footer{padding:20px 19px calc(20px + env(safe-area-inset-bottom));align-items:flex-start;flex-direction:column;gap:5px}
-      .modal{padding:12px}
-      .modal-panel{padding:17px;border-radius:18px;max-height:calc(100dvh - 24px)}
-      .modal-actions{flex-direction:column}
-    }
-    @media(prefers-reduced-motion:reduce){
-      *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2447f5">
+<meta name="description" content="Informasi pembayaran Charis Maulana: QRIS, ShopeePay, dan transfer BNI.">
+<title>Bayar ke Charis Maulana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2fb; --card:#ffffff; --ink:#0d1636; --muted:#5d6788; --line:#dde3f3;
+  --blue:#2447f5; --blue-d:#1731b8; --sky:#9bb4ff; --shopee:#ee4d2d; --bni:#00857c;
+  --accent:var(--blue);
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Plus Jakarta Sans",-apple-system,"Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--body);background:var(--bg);color:var(--ink);line-height:1.5;min-height:100svh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+
+/* Splash */
+#splash{position:fixed;inset:0;z-index:200;background:var(--blue);color:#fff;display:grid;place-items:center;cursor:pointer;overflow:hidden}
+#splash .wrap{display:grid;justify-items:center;gap:22px;padding-bottom:env(safe-area-inset-bottom)}
+#splash svg{width:112px;height:112px;overflow:visible}
+#splash .ring,#splash .mono{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+#splash .name{font-family:var(--display);font-weight:800;font-size:clamp(28px,8vw,44px);letter-spacing:-.03em;overflow:hidden}
+#splash .name span{display:inline-block}
+#splash .bar{width:160px;height:3px;border-radius:3px;background:rgba(255,255,255,.25);overflow:hidden}
+#splash .bar i{display:block;height:100%;width:0;background:#fff}
+#splash .hint{font-size:12px;opacity:.7}
+#splash canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
+
+/* Layout */
+.bg-blob{position:fixed;z-index:-1;border-radius:50%;filter:blur(70px);opacity:.55;pointer-events:none}
+.b1{width:340px;height:340px;background:#b9c9ff;top:-100px;right:-80px}
+.b2{width:300px;height:300px;background:#ffd5c7;bottom:-90px;left:-90px}
+.app{max-width:960px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;padding:6px 0 26px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:17px}
+.logo b{width:36px;height:36px;border-radius:12px;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:13px}
+.live{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.live i{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:ping 2s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 9px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,8vw,76px);line-height:.98;letter-spacing:-.045em;max-width:12ch}
+h1 .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em}
+h1 .w span{display:inline-block}
+.lead{margin-top:16px;color:var(--muted);max-width:44ch}
+
+.stage{display:grid;grid-template-columns:260px 1fr;gap:20px;margin-top:34px;align-items:start}
+.picker{display:grid;gap:10px;position:relative}
+.opt{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:rgba(255,255,255,.6);border:1px solid var(--line);text-align:left;position:relative;transition:background .2s,border-color .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+.opt:hover{background:#fff}
+.opt:active{transform:scale(.98)}
+.opt[aria-selected=true]{background:#fff;border-color:var(--accent);box-shadow:0 10px 30px -12px rgba(36,71,245,.35)}
+.opt .ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:12px;color:#fff;flex:none}
+.opt strong{display:block;font-size:14px}
+.opt small{color:var(--muted);font-size:12px}
+
+.panel{background:var(--card);border-radius:28px;padding:26px;border:1px solid var(--line);box-shadow:0 30px 60px -30px rgba(13,22,54,.25);min-width:0;transform-style:preserve-3d}
+.panel-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.panel-head .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:800;font-size:13px;background:var(--accent)}
+.panel-head h2{font-family:var(--display);font-size:24px;letter-spacing:-.03em;line-height:1.1}
+.panel-head p{font-size:13px;color:var(--muted)}
+.field{margin-top:16px}
+.field label,.label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+.value{font-family:var(--display);font-weight:700;font-size:clamp(24px,5vw,34px);letter-spacing:-.03em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.sub{font-size:13px;color:var(--muted)}
+.amount{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:14px;padding:0 14px;height:50px;transition:border-color .2s}
+.amount:focus-within{border-color:var(--accent)}
+.amount span{color:var(--muted);font-weight:600}
+.amount input{border:0;outline:0;background:none;width:100%;font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{padding:8px 13px;border-radius:99px;border:1px solid var(--line);font-size:13px;font-weight:600;transition:all .18s}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.btn{min-height:50px;padding:0 20px;border-radius:15px;font-weight:700;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1.5px solid var(--line);background:#fff;text-decoration:none;color:var(--ink);transition:transform .18s,background .18s,box-shadow .18s;flex:1 1 auto;-webkit-tap-highlight-color:transparent}
+.btn:hover{background:#f5f7fd}
+.btn:active{transform:scale(.97)}
+.btn.main{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 14px 28px -12px var(--accent)}
+.btn.main:hover{filter:brightness(1.08)}
+.apps{display:flex;gap:8px;flex-wrap:wrap}
+.apps .chip{display:flex;align-items:center;gap:7px}
+.apps .chip i{width:9px;height:9px;border-radius:50%}
+.qrbox{position:relative;background:#fff;border:1px solid var(--line);border-radius:22px;padding:14px;max-width:290px;margin:4px auto 0;overflow:hidden;cursor:zoom-in}
+.qrbox img{display:block;width:100%;aspect-ratio:1;object-fit:contain}
+.qrbox .scan{position:absolute;left:0;right:0;height:60px;top:-60px;background:linear-gradient(to bottom,transparent,rgba(36,71,245,.22),transparent);border-bottom:2px solid rgba(36,71,245,.7);animation:scan 2.8s ease-in-out infinite;pointer-events:none}
+@keyframes scan{to{transform:translateY(400px)}}
+.qrbox .miss{display:none;text-align:center;padding:36px 10px;color:var(--muted);font-size:13px}
+.note{margin-top:18px;font-size:12px;color:var(--muted);padding:12px 14px;border-radius:14px;background:#f3f6ff}
+footer{margin-top:44px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+/* Toast & dialog */
+#toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translate(-50%,30px);opacity:0;background:var(--ink);color:#fff;padding:13px 18px;border-radius:14px;font-size:13px;z-index:150;pointer-events:none;width:max-content;max-width:90vw}
+dialog{border:0;border-radius:26px;padding:20px;width:min(92vw,420px);background:#fff;color:var(--ink)}
+dialog::backdrop{background:rgba(8,14,40,.75);backdrop-filter:blur(5px)}
+dialog img{width:100%;aspect-ratio:1;object-fit:contain;display:block}
+dialog .actions{margin-top:14px}
+
+@media(max-width:760px){
+  .stage{grid-template-columns:1fr}
+  .picker{grid-template-columns:repeat(3,1fr);gap:8px}
+  .opt{flex-direction:column;align-items:flex-start;padding:12px;gap:8px}
+  .opt small{display:none}
+  .panel{padding:20px;border-radius:24px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
-<div class="page-shell">
-  <header class="topbar">
-    <a class="brand" href="#" aria-label="Halaman pembayaran Charis Maulana">
-      <span class="brand-mark" aria-hidden="true">CM</span><span>Charis Maulana</span>
-    </a>
-    <div class="top-note"><span class="status-dot" aria-hidden="true"></span> INFORMASI PEMBAYARAN</div>
-  </header>
-
-  <main>
-    <section class="intro" aria-labelledby="page-title">
-      <div>
-        <p class="eyebrow">Pembayaran personal</p>
-        <h1 id="page-title">Cara mudah<br>untuk <em>membayar.</em></h1>
-      </div>
-      <p class="intro-copy">Pilih metode pembayaran yang paling nyaman untukmu. <strong>Salin detail yang dibutuhkan</strong> atau gunakan QRIS untuk melanjutkan pembayaran melalui aplikasi pilihanmu.</p>
-    </section>
-
-    <section aria-labelledby="methods-title">
-      <div class="section-head">
-        <h2 id="methods-title">Pilih metode pembayaran</h2>
-        <span>3 metode tersedia</span>
-      </div>
-
-      <div class="payment-grid">
-        <article class="payment qris" aria-labelledby="qris-title">
-          <div class="method-head">
-            <div class="method-name">
-              <span class="method-symbol" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v2m-3 3h3v2m-6-1v1"/></svg>
-              </span>
-              QRIS
-            </div>
-            <span class="method-index">01 / 03</span>
-          </div>
-          <h3 class="method-title" id="qris-title">Pindai & bayar</h3>
-          <p class="method-desc">Gunakan aplikasi pembayaran yang mendukung QRIS.</p>
-          <div class="qr-frame">
-            <img id="qris-image" src="qris.png" alt="QRIS pembayaran Charis Maulana" loading="eager">
-            <div class="qr-fallback" id="qris-fallback">
-              <strong>Gambar QRIS belum ditambahkan</strong>
-              Letakkan gambar QRIS asli bernama <code>qris.png</code> di folder yang sama dengan file ini.
-            </div>
-          </div>
-          <p class="qr-help">Di ponsel yang sama, buka gambar QRIS lalu gunakan fitur bagikan atau simpan ke galeri untuk mencoba memindainya dari aplikasi pembayaran.</p>
-          <div class="actions">
-            <button class="btn btn-primary" type="button" id="open-qris">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/><path d="M8 8h3v3H8zM15 8h2m-2 3h3m-3 4h3v3h-3zM8 15h3v3H8z"/></svg>
-              Perbesar QRIS
-            </button>
-            <a class="btn btn-quiet" id="download-qris" href="qris.png" download="qris-charis.png">Unduh</a>
-          </div>
-        </article>
-
-        <article class="payment" aria-labelledby="shopee-title">
-          <div class="method-head">
-            <div class="method-name">
-              <span class="method-symbol" aria-hidden="true"><span class="brand-wordmark shopee">SPay</span></span>
-              ShopeePay
-            </div>
-            <span class="method-index">02 / 03</span>
-          </div>
-          <h3 class="method-title" id="shopee-title">Kirim ke e-wallet</h3>
-          <p class="method-desc">Transfer ke nomor ShopeePay berikut.</p>
-          <p class="data-label">Nomor ShopeePay</p>
-          <p class="data-value" id="shopee-number">081336663071</p>
-          <p class="account-name">Atas nama Charis Maulana</p>
-          <div class="rule"></div>
-          <p class="data-label">Langkah berikutnya</p>
-          <p class="method-desc">Salin nomor, lalu buka ShopeePay dan pilih menu transfer yang sesuai.</p>
-          <div class="actions">
-            <button class="btn btn-primary" type="button" data-copy="shopee-number" data-label="nomor ShopeePay">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
-              Salin nomor
-            </button>
-            <a class="btn" href="https://help.shopee.co.id/portal/11/article/181047-%5BFitur-ShopeePay%5D-Apakah-Bisa-Scan-Kode-QRIS-Langsung-dari-Galeri-Tanpa-Membuka-Aplikasi-ShopeePay-Terlebih-Dahulu" target="_blank" rel="noopener noreferrer">Cara bayar ↗</a>
-          </div>
-        </article>
-
-        <article class="payment" aria-labelledby="bni-title">
-          <div class="method-head">
-            <div class="method-name">
-              <span class="method-symbol" aria-hidden="true"><span class="brand-wordmark bni">BNI</span></span>
-              Bank Negara Indonesia
-            </div>
-            <span class="method-index">03 / 03</span>
-          </div>
-          <h3 class="method-title" id="bni-title">Transfer bank</h3>
-          <p class="method-desc">Gunakan detail rekening ini untuk transfer.</p>
-          <p class="data-label">Nomor rekening BNI</p>
-          <p class="data-value" id="bni-number">0697962588</p>
-          <p class="data-label" style="margin-top:19px">Nama pemilik rekening</p>
-          <p class="data-value" id="bni-owner" style="font-size:16px;letter-spacing:-.02em">Charis Maulana S A</p>
-          <div class="rule"></div>
-          <p class="method-desc">Periksa kembali nama penerima di aplikasi bank sebelum mengonfirmasi transfer.</p>
-          <div class="actions">
-            <button class="btn btn-primary" type="button" data-copy="bni-number" data-label="nomor rekening BNI">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
-              Salin rekening
-            </button>
-            <button class="btn" type="button" data-copy="bni-owner" data-label="nama pemilik">Salin nama</button>
-            <a class="btn" href="https://wondr.bni.co.id/" target="_blank" rel="noopener noreferrer">Buka wondr ↗</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="guidance" aria-label="Informasi penting">
-      <div class="guidance-item">
-        <span class="guidance-num" aria-hidden="true">01</span>
-        <div><h3>Pastikan detail penerima sesuai</h3><p>Cocokkan nomor dan nama penerima sebelum menyelesaikan pembayaran di aplikasi.</p></div>
-      </div>
-      <div class="guidance-item">
-        <span class="guidance-num" aria-hidden="true">02</span>
-        <div><h3>Konfirmasi transaksi di aplikasi</h3><p>Halaman ini tidak memverifikasi pembayaran secara otomatis. Periksa status transaksi melalui aplikasi pembayaranmu.</p></div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <span>Informasi pembayaran personal oleh <strong>Charis Maulana</strong></span>
-    <span>© <span id="year"></span> Charis Maulana</span>
-  </footer>
-</div>
-
-<div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
-
-<div class="modal" id="qris-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
-  <div class="modal-backdrop" data-close-modal></div>
-  <div class="modal-panel" role="document">
-    <div class="modal-top">
-      <h2 id="modal-title">QRIS pembayaran</h2>
-      <button class="icon-btn" type="button" id="close-modal" aria-label="Tutup QRIS">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
-      </button>
-    </div>
-    <div class="modal-qr">
-      <img id="modal-qris-image" src="qris.png" alt="QRIS pembayaran Charis Maulana">
-      <div class="qr-fallback" id="modal-qris-fallback"><strong>Gambar QRIS belum tersedia</strong>Tambahkan file qris.png di folder website.</div>
-    </div>
-    <p class="modal-note">Jika kamu membuka halaman ini di ponsel yang sama dengan aplikasi pembayaran, unduh atau simpan gambar lalu gunakan fitur bagikan/galeri yang didukung aplikasi tersebut.</p>
-    <div class="modal-actions">
-      <a class="btn btn-primary" href="qris.png" download="qris-charis.png" id="modal-download">Unduh QRIS</a>
-      <button class="btn" type="button" data-close-modal>Tutup</button>
-    </div>
+<div id="splash" role="status" aria-label="Memuat halaman">
+  <canvas id="net"></canvas>
+  <div class="wrap">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="ring" cx="60" cy="60" r="54"/>
+      <path class="mono" d="M44 46a16 16 0 1 0 0 28M70 76V44l12 20 12-20v32"/>
+    </svg>
+    <div class="name" aria-hidden="true"></div>
+    <div class="bar"><i></i></div>
+    <div class="hint">Ketuk untuk lewati</div>
   </div>
 </div>
 
+<div class="bg-blob b1"></div><div class="bg-blob b2"></div>
+
+<div class="app" id="app">
+  <header>
+    <div class="logo"><b>CM</b>Charis Maulana</div>
+    <div class="live"><i></i>Siap menerima pembayaran</div>
+  </header>
+
+  <section>
+    <h1 id="title" aria-label="Bayar dengan cara yang paling praktis.">
+      <span class="w"><span>Bayar</span></span> <span class="w"><span>dengan</span></span> <span class="w"><span>cara</span></span> <span class="w"><span>yang</span></span> <span class="w"><span>paling</span></span> <span class="w"><span>praktis.</span></span>
+    </h1>
+    <p class="lead">Pilih metode, isi nominal kalau perlu, lalu satu ketukan: nomor otomatis tersalin dan aplikasimu terbuka.</p>
+  </section>
+
+  <section class="stage">
+    <div class="picker" role="tablist" aria-label="Metode pembayaran" id="picker"></div>
+    <article class="panel" id="panel" role="tabpanel" aria-live="polite"></article>
+  </section>
+
+  <footer>
+    <span>Pembayaran tidak diverifikasi otomatis. Cek status di aplikasimu.</span>
+    <span>© <span id="yr"></span> Charis Maulana</span>
+  </footer>
+</div>
+
+<dialog id="dlg" aria-label="QRIS">
+  <img id="dlgimg" src="qris.png" alt="QRIS Charis Maulana">
+  <div class="actions">
+    <a class="btn main" href="qris.png" download="qris-charis.png">Simpan ke galeri</a>
+    <button class="btn" type="button" id="dlgclose">Tutup</button>
+  </div>
+</dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
 <script>
 (() => {
-  "use strict";
-  const $ = (selector, root = document) => root.querySelector(selector);
-  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-  const toastRegion = $("#toast-region");
-  const modal = $("#qris-modal");
-  const qrisImage = $("#qris-image");
-  const modalImage = $("#modal-qris-image");
-  let toastTimer;
-  let previousFocus = null;
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hasG = typeof gsap !== "undefined";
+$("#yr").textContent = new Date().getFullYear();
 
-  $("#year").textContent = String(new Date().getFullYear());
+/* ---------- Data metode ---------- */
+const METHODS = {
+  qris:{label:"QRIS", short:"QR", sub:"Semua e-wallet & m-banking", color:"#2447f5", title:"Pindai QRIS", desc:"Bisa dibayar dari aplikasi apa pun yang mendukung QRIS."},
+  shopee:{label:"ShopeePay", short:"SP", sub:"Kirim ke e-wallet", color:"#ee4d2d", title:"ShopeePay", desc:"Transfer ke nomor ShopeePay.", number:"081336663071", owner:"Charis Maulana",
+    app:{name:"ShopeePay", scheme:"shopeeid://", pkg:"com.shopee.id", ios:"https://apps.apple.com/id/app/shopee-id/id959841449", web:"https://shopee.co.id"}},
+  bni:{label:"BNI", short:"BNI", sub:"Transfer bank", color:"#00857c", title:"Transfer BNI", desc:"Transfer ke rekening BNI.", number:"0697962588", owner:"Charis Maulana S A",
+    app:{name:"wondr by BNI", scheme:"", pkg:"id.bni.wondr", ios:"https://wondr.bni.co.id/", web:"https://wondr.bni.co.id/"}}
+};
+const QRIS_APPS = [
+  {name:"ShopeePay", color:"#ee4d2d", scheme:"shopeeid://", pkg:"com.shopee.id", ios:"https://apps.apple.com/id/app/shopee-id/id959841449", web:"https://shopee.co.id"},
+  {name:"GoPay", color:"#00aa13", scheme:"gojek://", pkg:"com.gojek.app", ios:"https://apps.apple.com/id/app/gojek/id944875099", web:"https://www.gojek.com"},
+  {name:"DANA", color:"#118eea", scheme:"danaid://", pkg:"id.dana", ios:"https://apps.apple.com/id/app/dana-indonesia/id1437123008", web:"https://dana.id"},
+  {name:"OVO", color:"#4c2a86", scheme:"ovo://", pkg:"ovo.id", ios:"https://apps.apple.com/id/app/ovo/id1142114188", web:"https://www.ovo.id"}
+];
+let current = "qris", amount = 0;
+const rupiah = n => "Rp " + n.toLocaleString("id-ID");
 
-  function showToast(message, kind = "success") {
-    clearTimeout(toastTimer);
-    toastRegion.replaceChildren();
-    const toast = document.createElement("div");
-    toast.className = "toast";
-    toast.dataset.kind = kind;
-    const mark = document.createElement("span");
-    mark.className = "toast-mark";
-    mark.setAttribute("aria-hidden", "true");
-    const text = document.createElement("span");
-    text.textContent = message;
-    toast.append(mark, text);
-    toastRegion.append(toast);
-    requestAnimationFrame(() => toast.classList.add("is-visible"));
-    toastTimer = setTimeout(() => {
-      toast.classList.remove("is-visible");
-      setTimeout(() => toast.remove(), 250);
-    }, 2600);
+/* ---------- Util ---------- */
+let tt;
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg;
+  clearTimeout(tt);
+  if (hasG && !reduce) gsap.fromTo(t,{y:30,opacity:0},{y:0,opacity:1,duration:.3,ease:"back.out(1.6)",overwrite:true});
+  else t.style.cssText += ";opacity:1;transform:translate(-50%,0)";
+  tt = setTimeout(()=>{ hasG && !reduce ? gsap.to(t,{y:30,opacity:0,duration:.25}) : (t.style.opacity=0); }, 2600);
+}
+async function copy(text){
+  try{
+    if (navigator.clipboard && isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+  }catch(e){}
+  const f = document.createElement("textarea");
+  f.value = text; f.readOnly = true; f.style.cssText = "position:fixed;opacity:0";
+  document.body.append(f); f.select(); f.setSelectionRange(0, text.length);
+  let ok = false; try{ ok = document.execCommand("copy"); }catch(e){}
+  f.remove(); return ok;
+}
+function boom(el){
+  if (reduce || typeof confetti === "undefined") return;
+  const r = el.getBoundingClientRect();
+  confetti({particleCount:60, spread:70, startVelocity:28, ticks:120, scalar:.8,
+    origin:{x:(r.left+r.width/2)/innerWidth, y:(r.top+r.height/2)/innerHeight},
+    colors:["#2447f5","#9bb4ff","#ee4d2d","#00857c","#ffffff"]});
+}
+/* Buka aplikasi: Android pakai intent, iOS pakai scheme, ada fallback ke toko/web */
+function openApp(a){
+  const ua = navigator.userAgent, android = /Android/i.test(ua), ios = /iPhone|iPad|iPod/i.test(ua);
+  if (!android && !ios) { window.open(a.web, "_blank", "noopener"); return; }
+  if (android){
+    const fb = encodeURIComponent("https://play.google.com/store/apps/details?id=" + a.pkg);
+    const sch = a.scheme ? a.scheme.replace("://","") : "";
+    location.href = "intent://" + (sch ? "open" : "") + "#Intent;" + (sch ? "scheme="+sch+";" : "") + "package=" + a.pkg + ";S.browser_fallback_url=" + fb + ";end";
+    return;
   }
+  const t = Date.now();
+  if (a.scheme) location.href = a.scheme;
+  setTimeout(() => { if (!document.hidden && Date.now() - t < 2500) location.href = a.ios; }, 1200);
+}
+async function copyAndOpen(value, app, btn){
+  const ok = await copy(value);
+  boom(btn);
+  toast(ok ? "Tersalin. Membuka " + app.name + "..." : "Salin manual lalu buka " + app.name);
+  setTimeout(() => openApp(app), 650);
+}
 
-  async function copyText(value) {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(value);
-      return true;
+/* ---------- Render ---------- */
+function picker(){
+  $("#picker").innerHTML = Object.entries(METHODS).map(([k,m]) =>
+    `<button class="opt" role="tab" id="tab-${k}" data-k="${k}" aria-selected="${k===current}" aria-controls="panel">
+      <span class="ic" style="background:${m.color}">${m.short}</span>
+      <span><strong>${m.label}</strong><small>${m.sub}</small></span>
+    </button>`).join("");
+}
+function amountBlock(){
+  return `<div class="field"><label for="amt">Nominal (opsional)</label>
+    <div class="amount"><span>Rp</span><input id="amt" inputmode="numeric" placeholder="0" value="${amount ? amount.toLocaleString("id-ID") : ""}" autocomplete="off"></div>
+    <div class="chips">${[10000,25000,50000,100000].map(n=>`<button class="chip" type="button" data-amt="${n}">${(n/1000)}rb</button>`).join("")}</div></div>`;
+}
+function panelHTML(k){
+  const m = METHODS[k];
+  const head = `<div class="panel-head"><span class="ic" style="background:${m.color}">${m.short}</span><div><h2>${m.title}</h2><p>${m.desc}</p></div></div>`;
+  if (k === "qris") return head + `
+    <div class="qrbox" id="qrbox" title="Ketuk untuk memperbesar"><img id="qrimg" src="qris.png" alt="QRIS Charis Maulana"><div class="scan"></div>
+      <div class="miss" id="qrmiss"><strong>qris.png belum ditemukan</strong><br>Taruh gambar QRIS di folder yang sama dengan file ini.</div></div>
+    <div class="actions"><button class="btn main" id="zoom" type="button">Perbesar QRIS</button><button class="btn" id="share" type="button">Bagikan ke aplikasi</button></div>
+    <div class="field"><span class="label">Buka aplikasi pembayaran</span><div class="apps">${QRIS_APPS.map((a,i)=>`<button class="chip" type="button" data-app="${i}"><i style="background:${a.color}"></i>${a.name}</button>`).join("")}</div></div>
+    <p class="note">Di ponsel yang sama: tekan Bagikan atau simpan gambar, lalu pilih dari galeri di menu scan aplikasi.</p>`;
+  return head + `
+    <div class="field"><span class="label">${k==="bni"?"Nomor rekening":"Nomor ShopeePay"}</span><p class="value" id="num">${m.number}</p>
+      <p class="sub">a.n. <strong id="own">${m.owner}</strong></p></div>
+    ${amountBlock()}
+    <div class="actions">
+      <button class="btn main" id="go" type="button">Salin &amp; buka ${m.app.name}</button>
+      <button class="btn" id="cp" type="button">Salin nomor</button>
+      ${k==="bni"?`<button class="btn" id="cpn" type="button">Salin nama</button>`:""}
+    </div>
+    <p class="note">${k==="bni"?"Cocokkan nama penerima di aplikasi bank sebelum konfirmasi.":"Di ShopeePay pilih Transfer, lalu tempel nomor yang sudah tersalin."} Aplikasi tidak bisa mengisi nominal otomatis, jadi tulis nominalnya sendiri di sana${amount?` (${rupiah(amount)})`:""}.</p>`;
+}
+function bind(k){
+  const m = METHODS[k], p = $("#panel");
+  if (k === "qris"){
+    const img = $("#qrimg"), miss = $("#qrmiss");
+    img.addEventListener("error", () => { img.style.display = "none"; miss.style.display = "block"; });
+    const open = () => { if (!img.naturalWidth) return toast("qris.png belum ditemukan"); $("#dlg").showModal(); };
+    $("#zoom").onclick = open; $("#qrbox").onclick = open;
+    $("#share").onclick = async () => {
+      try{
+        const blob = await (await fetch("qris.png")).blob();
+        const file = new File([blob], "qris-charis.png", {type: blob.type || "image/png"});
+        if (navigator.canShare && navigator.canShare({files:[file]})) { await navigator.share({files:[file], title:"QRIS Charis Maulana"}); return; }
+      }catch(e){ if (e && e.name === "AbortError") return; }
+      toast("Share tidak didukung. Buka perbesar lalu simpan gambar.");
+    };
+    p.querySelectorAll("[data-app]").forEach(b => b.onclick = () => { toast("Membuka " + QRIS_APPS[b.dataset.app].name + "..."); openApp(QRIS_APPS[b.dataset.app]); });
+    return;
+  }
+  const amt = $("#amt");
+  const setAmt = n => { amount = n; amt.value = n ? n.toLocaleString("id-ID") : ""; };
+  amt.addEventListener("input", () => setAmt(parseInt(amt.value.replace(/\D/g,"")||"0",10)));
+  p.querySelectorAll("[data-amt]").forEach(b => b.onclick = () => { setAmt(+b.dataset.amt); toast("Nominal " + rupiah(amount)); });
+  $("#cp").onclick = async e => { toast(await copy(m.number) ? "Nomor tersalin" : "Gagal menyalin, salin manual"); boom(e.currentTarget); };
+  if ($("#cpn")) $("#cpn").onclick = async () => toast(await copy(m.owner) ? "Nama tersalin" : "Gagal menyalin");
+  $("#go").onclick = e => copyAndOpen(m.number, m.app, e.currentTarget);
+}
+function show(k, animate = true){
+  const prev = current; current = k;
+  document.documentElement.style.setProperty("--accent", METHODS[k].color);
+  document.querySelectorAll(".opt").forEach(o => o.setAttribute("aria-selected", o.dataset.k === k));
+  const p = $("#panel"); p.setAttribute("aria-labelledby", "tab-" + k);
+  const swap = () => {
+    p.innerHTML = panelHTML(k); bind(k);
+    if (hasG && !reduce){
+      gsap.fromTo(p, {opacity:0, y:18, rotateX:-4}, {opacity:1, y:0, rotateX:0, duration:.45, ease:"power3.out"});
+      gsap.from(p.querySelectorAll(".panel-head,.field,.qrbox,.actions,.note"), {opacity:0, y:12, stagger:.06, duration:.4, delay:.08, ease:"power2.out"});
     }
-    const field = document.createElement("textarea");
-    field.value = value;
-    field.setAttribute("readonly", "");
-    field.style.position = "fixed";
-    field.style.opacity = "0";
-    field.style.pointerEvents = "none";
-    document.body.append(field);
-    field.select();
-    field.setSelectionRange(0, field.value.length);
-    let success = false;
-    try { success = document.execCommand("copy"); }
-    finally { field.remove(); }
-    if (!success) throw new Error("Clipboard tidak tersedia");
-    return true;
-  }
+  };
+  if (animate && hasG && !reduce && prev !== k) gsap.to(p, {opacity:0, y:-10, duration:.15, onComplete:swap}); else swap();
+}
+$("#picker").addEventListener("click", e => { const b = e.target.closest(".opt"); if (b && b.dataset.k !== current) show(b.dataset.k); });
+$("#picker").addEventListener("keydown", e => {
+  const keys = Object.keys(METHODS), i = keys.indexOf(current);
+  if (e.key === "ArrowDown" || e.key === "ArrowRight") { show(keys[(i+1)%keys.length]); $("#tab-"+current).focus(); }
+  if (e.key === "ArrowUp" || e.key === "ArrowLeft") { show(keys[(i+keys.length-1)%keys.length]); $("#tab-"+current).focus(); }
+});
+$("#dlgclose").onclick = () => $("#dlg").close();
+$("#dlg").addEventListener("click", e => { if (e.target.id === "dlg") e.target.close(); });
+if (window.VanillaTilt && !reduce && matchMedia("(hover:hover)").matches)
+  VanillaTilt.init($("#panel"), {max:4, speed:500, glare:true, "max-glare":.12, perspective:1200});
 
-  $$("[data-copy]").forEach(button => {
-    button.addEventListener("click", async () => {
-      const target = document.getElementById(button.dataset.copy);
-      if (!target) return;
-      const value = target.textContent.trim();
-      const original = button.dataset.originalLabel || button.textContent.trim();
-      button.dataset.originalLabel = original;
-      try {
-        await copyText(value);
-        button.textContent = "Tersalin ✓";
-        button.setAttribute("aria-label", `${button.dataset.label} berhasil disalin`);
-        showToast(`${button.dataset.label} berhasil disalin.`);
-      } catch {
-        showToast("Tidak dapat menyalin otomatis. Tekan lama teks lalu salin manual.", "error");
-      }
-      clearTimeout(button._resetTimer);
-      button._resetTimer = setTimeout(() => {
-        button.textContent = original;
-        button.removeAttribute("aria-label");
-      }, 1900);
+picker(); show("qris", false);
+
+/* ---------- Splash ---------- */
+const splash = $("#splash");
+function splashParticles(){
+  const c = $("#net"), x = c.getContext("2d");
+  const W = c.width = innerWidth, H = c.height = innerHeight;
+  const pts = Array.from({length: Math.min(46, Math.floor(W/16))}, () => ({x:Math.random()*W, y:Math.random()*H, vx:(Math.random()-.5)*.5, vy:(Math.random()-.5)*.5}));
+  let alive = true;
+  (function tick(){
+    if (!alive) return;
+    x.clearRect(0,0,W,H);
+    pts.forEach((p,i) => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x<0||p.x>W) p.vx*=-1; if (p.y<0||p.y>H) p.vy*=-1;
+      x.fillStyle = "rgba(255,255,255,.7)"; x.beginPath(); x.arc(p.x,p.y,1.6,0,6.3); x.fill();
+      for (let j=i+1;j<pts.length;j++){ const q=pts[j], d=Math.hypot(p.x-q.x,p.y-q.y);
+        if (d<110){ x.strokeStyle = "rgba(255,255,255,"+(.25*(1-d/110))+")"; x.beginPath(); x.moveTo(p.x,p.y); x.lineTo(q.x,q.y); x.stroke(); } }
     });
-  });
-
-  function setQrisFallback(image, fallback) {
-    image.hidden = true;
-    fallback.style.display = "block";
-  }
-  qrisImage.addEventListener("error", () => setQrisFallback(qrisImage, $("#qris-fallback")));
-  modalImage.addEventListener("error", () => setQrisFallback(modalImage, $("#modal-qris-fallback")));
-  qrisImage.addEventListener("load", () => {
-    qrisImage.hidden = false;
-    $("#qris-fallback").style.display = "none";
-  });
-  modalImage.addEventListener("load", () => {
-    modalImage.hidden = false;
-    $("#modal-qris-fallback").style.display = "none";
-  });
-
-  const downloadLink = $("#download-qris");
-  downloadLink.addEventListener("click", event => {
-    if (qrisImage.hidden || !qrisImage.naturalWidth) {
-      event.preventDefault();
-      showToast("Tambahkan gambar QRIS asli sebagai qris.png terlebih dahulu.", "error");
-    }
-  });
-  $("#modal-download").addEventListener("click", event => {
-    if (modalImage.hidden || !modalImage.naturalWidth) {
-      event.preventDefault();
-      showToast("Gambar QRIS belum tersedia untuk diunduh.", "error");
-    }
-  });
-
-  function openModal() {
-    if (qrisImage.hidden || !qrisImage.naturalWidth) {
-      showToast("Gambar QRIS belum tersedia. Letakkan qris.png di folder website.", "error");
-      return;
-    }
-    previousFocus = document.activeElement;
-    modal.hidden = false;
-    document.body.style.overflow = "hidden";
-    $("#close-modal").focus();
-  }
-  function closeModal() {
-    modal.hidden = true;
-    document.body.style.overflow = "";
-    if (previousFocus && typeof previousFocus.focus === "function") previousFocus.focus();
-  }
-  $("#open-qris").addEventListener("click", openModal);
-  $("#close-modal").addEventListener("click", closeModal);
-  $$("[data-close-modal]").forEach(el => el.addEventListener("click", closeModal));
-  document.addEventListener("keydown", event => {
-    if (modal.hidden) return;
-    if (event.key === "Escape") {
-      closeModal();
-      return;
-    }
-    if (event.key === "Tab") {
-      const focusable = $$('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])', modal)
-        .filter(el => !el.hidden && el.offsetParent !== null);
-      if (!focusable.length) return;
-      const first = focusable[0], last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault(); last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault(); first.focus();
-      }
-    }
-  });
+    requestAnimationFrame(tick);
+  })();
+  return () => alive = false;
+}
+function hideSplash(){
+  if (splash.dataset.done) return; splash.dataset.done = 1;
+  if (!hasG || reduce) { splash.remove(); return; }
+  gsap.timeline({onComplete:() => splash.remove()})
+    .to(splash.querySelector(".wrap"), {scale:.85, opacity:0, duration:.3, ease:"power2.in"})
+    .to(splash, {clipPath:"inset(0 0 100% 0)", duration:.8, ease:"expo.inOut"}, "-=.05")
+    .from("h1 .w span", {yPercent:110, stagger:.07, duration:.7, ease:"power4.out"}, "-=.35")
+    .from([".logo",".live",".lead"], {opacity:0, y:14, stagger:.08, duration:.5}, "-=.6")
+    .from([".opt"], {opacity:0, x:-18, stagger:.08, duration:.5, ease:"power3.out"}, "-=.5")
+    .from("#panel", {opacity:0, y:30, duration:.6, ease:"power3.out"}, "-=.5");
+}
+if (hasG && !reduce){
+  const stop = splashParticles();
+  const name = splash.querySelector(".name");
+  name.innerHTML = "Charis Maulana".split("").map(c => `<span>${c === " " ? "&nbsp;" : c}</span>`).join("");
+  const paths = splash.querySelectorAll(".ring,.mono");
+  paths.forEach(p => { const l = p.getTotalLength(); p.style.strokeDasharray = l; p.style.strokeDashoffset = l; });
+  const tl = gsap.timeline({onComplete:() => { stop(); hideSplash(); }});
+  tl.to(paths, {strokeDashoffset:0, duration:1.1, stagger:.25, ease:"power2.inOut"})
+    .from(name.children, {yPercent:110, opacity:0, stagger:.04, duration:.5, ease:"back.out(1.8)"}, "-=.5")
+    .to(splash.querySelector(".bar i"), {width:"100%", duration:1.3, ease:"power1.inOut"}, 0)
+    .to({}, {duration:.25});
+  splash.addEventListener("click", () => { tl.progress(1); });
+} else { splash.remove(); }
 })();
 </script>
 </body>
